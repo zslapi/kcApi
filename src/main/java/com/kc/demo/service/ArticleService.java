@@ -10,19 +10,19 @@ import java.util.List;
 public interface ArticleService {
     int add(Article record);
 
-    List<Article> getArticleListByArticleTypeId(Integer articleTypeId);
+    List<Article> getArticleListByArticleTypeId(Integer articleTypeId,Integer pageNum,Integer pageSize);
 
-    List<Article> getUserFollowArticles(Integer userId);
+    List<Article> getUserFollowArticles(Integer userId,Integer pageNum,Integer pageSize);
 
-    List<Article> getArticleListByTitleKey (String titleKey);
+    List<Article> getArticleListByTitleKey (String titleKey,Integer pageNum,Integer pageSize);
 
-    List<Article> getArticleListByTopic (String topic);//获取话题列表
+    List<Article> getArticleListByTopic (String topic,Integer pageNum,Integer pageSize);//获取话题列表
 
     int praiseArticle(Integer articleId);
 
     int treadArticle(Integer articleId);
 
-    int addArticleImages(MultipartFile imgFile, String fileName, Integer articleId, String path) throws FileNotFoundException;
+    int addArticleImages(MultipartFile imgFile, Integer articleId) throws FileNotFoundException;
 
     ArticleDetailVo getArticleDetail(Integer articleId);
 }

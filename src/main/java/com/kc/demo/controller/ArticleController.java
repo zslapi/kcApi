@@ -1,11 +1,9 @@
 package com.kc.demo.controller;
 
+import com.kc.demo.jobs.PreviewArticleImageTask;
 import com.kc.demo.model.Article;
 import com.kc.demo.service.ArticleService;
-import com.kc.demo.util.Constants;
-import com.kc.demo.util.FileUtil;
-import com.kc.demo.util.ImageUtil;
-import com.kc.demo.util.StringUtil;
+import com.kc.demo.util.*;
 import com.kc.demo.vo.ArticleDetailVo;
 import com.kc.demo.vo.Result;
 import org.apache.commons.fileupload.FileItem;
@@ -31,6 +29,9 @@ import java.io.*;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 
 @Controller
@@ -108,12 +109,13 @@ public class ArticleController {
      */
     @RequestMapping(value = "/section/{articletypeid}")
     public @ResponseBody
-    Result getArticleSectionList(@PathVariable(value = "articletypeid", required = false) String articletypeid) {
+    Result getArticleSectionList(@PathVariable(value = "articletypeid", required = false) Integer articletypeid,
+                                 @RequestParam(value = "pageNum") Integer pageNum,
+                                 @RequestParam(value = "pageSize") Integer pageSize) {
         Result result = new Result();
         List<Article> data = null;
         try {
-            int articleTypeId = Integer.parseInt(articletypeid);
-            data = articleService.getArticleListByArticleTypeId(articleTypeId);
+            data = articleService.getArticleListByArticleTypeId(articletypeid,pageNum,pageSize);
         } catch (Exception e) {
             e.printStackTrace();
             result.setStatusCode("500");
@@ -133,12 +135,13 @@ public class ArticleController {
      */
     @RequestMapping("/follow/{userid}")
     public @ResponseBody
-    Result getFollow(@PathVariable(value = "userid", required = false) String userid) {
+    Result getFollow(@PathVariable(value = "userid", required = false) Integer userid,
+                     @RequestParam(value = "pageNum") Integer pageNum,
+                     @RequestParam(value = "pageSize") Integer pageSize) {
         Result result = new Result();
         List<Article> data = null;
         try {
-            int userId = Integer.parseInt(userid);
-            data = articleService.getUserFollowArticles(userId);
+            data = articleService.getUserFollowArticles(userid,pageNum,pageSize);
         } catch (Exception e) {
             e.printStackTrace();
             result.setStatusCode("500");
@@ -158,11 +161,13 @@ public class ArticleController {
      */
     @RequestMapping("/search")
     public @ResponseBody
-    Result searchByTitleKey(@RequestParam("articletitle") String articletitle) {
+    Result searchByTitleKey(@RequestParam("articletitle") String articletitle,
+                            @RequestParam(value = "pageNum") Integer pageNum,
+                            @RequestParam(value = "pageSize") Integer pageSize) {
         Result result = new Result();
         List<Article> data = null;
         try {
-            data = articleService.getArticleListByTitleKey(articletitle);
+            data = articleService.getArticleListByTitleKey(articletitle,pageNum,pageSize);
         } catch (Exception e) {
             e.printStackTrace();
             result.setStatusCode("500");
@@ -182,11 +187,13 @@ public class ArticleController {
      */
     @RequestMapping("/topic/search")
     public @ResponseBody
-    Result searchTopic(@RequestParam("topic") String topic) {
+    Result searchTopic(@RequestParam("topic") String topic,
+                       @RequestParam(value = "pageNum") Integer pageNum,
+                       @RequestParam(value = "pageSize") Integer pageSize) {
         Result result = new Result();
         List<Article> data = null;
         try {
-            data = articleService.getArticleListByTopic(topic);
+            data = articleService.getArticleListByTopic(topic,pageNum,pageSize);
         } catch (Exception e) {
             e.printStackTrace();
             result.setStatusCode("500");
@@ -256,17 +263,18 @@ public class ArticleController {
             result.setErrorMsg("格式化错误");
             return result;
         }
-        String fileName = null;
+        int articleImgId = 0;
         try {
-            //获取路径
-            String filePath = Constants.articleImgFilePath();
-            //logger.info("图片保存路径={}", filePath);
-            System.out.print("图片保存路径={"+filePath+"}");
-            fileName = ImageUtil.saveImg(imgFile, filePath);
-            articleService.addArticleImages(imgFile,fileName,articleId,filePath);
+            //返回文章图片文件名地址映射表id
+            articleImgId = articleService.addArticleImages(imgFile,articleId);
+            if(articleImgId == 0){
+                result.setStatusCode("500");
+                result.setErrorMsg("文件上传任务失败");
+                return result;
+            }
             result.setStatusCode("200");
             result.setErrorMsg("上传成功");
-            result.setData(fileName);
+            result.setData(articleImgId);
         } catch (IOException e) {
             e.printStackTrace();
             result.setStatusCode("500");
@@ -284,15 +292,19 @@ public class ArticleController {
     @RequestMapping(value="/images/{fileName}",produces = MediaType.IMAGE_PNG_VALUE)
      @ResponseBody
      public ResponseEntity<?> getFile(@PathVariable String fileName) {
-         try {
-             InputStream inputStream = new FileInputStream(new File(Constants.articleImgFilePath()+fileName));
-             InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
-             HttpHeaders headers = new HttpHeaders();
-             return new ResponseEntity<>(inputStreamResource,headers, HttpStatus.OK);
-         } catch (FileNotFoundException e) {
-             e.printStackTrace();
-             return ResponseEntity.notFound().build();
-         }
+        Callable<Object> task = new PreviewArticleImageTask(fileName);
+        Future<Object> taskResult = ThreadPoolUtil.submit(task);
+        ResponseEntity<?> responseEntity = null;
+        try {
+            responseEntity = (ResponseEntity<?>) taskResult.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return ResponseEntity.notFound().build();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            return ResponseEntity.notFound().build();
+        }
+        return  responseEntity;
      }
 
 }

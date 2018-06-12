@@ -30,7 +30,7 @@
     delete from tb_article_imgages
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.kc.demo.model.ArticleImages" >
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.kc.demo.model.ArticleImages" >
     insert into tb_article_imgages (id, originalName, fileName, 
       imgType, articleId, createTime, 
       filePath)

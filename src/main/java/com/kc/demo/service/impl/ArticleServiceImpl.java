@@ -1,8 +1,10 @@
 package com.kc.demo.service.impl;
 
+import com.github.pagehelper.PageHelper;
 import com.kc.demo.dao.ArticleImagesMapper;
 import com.kc.demo.dao.ArticleMapper;
 import com.kc.demo.dao.UserFollowMapper;
+import com.kc.demo.jobs.SaveImagesTask;
 import com.kc.demo.model.Article;
 import com.kc.demo.model.ArticleImages;
 import com.kc.demo.model.UserFollow;
@@ -10,14 +12,19 @@ import com.kc.demo.service.ArticleService;
 import com.kc.demo.util.Constants;
 import com.kc.demo.util.ImageUtil;
 import com.kc.demo.util.StringUtil;
+import com.kc.demo.util.ThreadPoolUtil;
 import com.kc.demo.vo.ArticleDetailVo;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @Service
 public class ArticleServiceImpl implements ArticleService {
@@ -37,22 +44,29 @@ public class ArticleServiceImpl implements ArticleService {
         return id;
     }
 
+    /**
+     * 根据文章类型获取文章列表
+     * @param articleTypeId
+     * @return
+     */
     @Override
-    public List<Article> getArticleListByArticleTypeId(Integer articleTypeId) {
+    public List<Article> getArticleListByArticleTypeId(Integer articleTypeId,Integer pageNum,Integer pageSize) {
 //        Article a = new Article();
 //        a.setArticletypeid(articleTypeId);
+        PageHelper.startPage(pageNum, pageSize);
         List<Article> articleList = articleMapper.selectListByArticleTypeId(articleTypeId);
         addTimeAgoInList(articleList);
         return articleList;
     }
 
     @Override
-    public List<Article> getUserFollowArticles(Integer userId) {
+    public List<Article> getUserFollowArticles(Integer userId,Integer pageNum,Integer pageSize) {
         List<UserFollow> followList = userFollowMapper.selectByUserId(userId);
         List<Integer> userIds = new ArrayList<>();
         for(UserFollow follow:followList){
             userIds.add(follow.getFollowuserid());
         }
+        PageHelper.startPage(pageNum, pageSize);
         List<Article> articles = articleMapper.selectByUserIds(userIds);
         addTimeAgoInList(articles);
         return articles;
@@ -67,17 +81,19 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<Article> getArticleListByTitleKey(String titleKey) {
+    public List<Article> getArticleListByTitleKey(String titleKey,Integer pageNum,Integer pageSize) {
         Article article = new Article();
         article.setTitle(titleKey);
+        PageHelper.startPage(pageNum, pageSize);
         return articleMapper.selectByFilter(article);
     }
 
     @Override
-    public List<Article> getArticleListByTopic(String topic) {
+    public List<Article> getArticleListByTopic(String topic,Integer pageNum,Integer pageSize) {
         Article article = new Article();
         article.setTitle(topic);
         article.setArticletypeid(2);
+        PageHelper.startPage(pageNum, pageSize);
         return articleMapper.selectByFilter(article);
     }
 
@@ -114,15 +130,36 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public int addArticleImages(MultipartFile imgFile, String fileName, Integer articleId, String path) {
-        ArticleImages articleImages = new ArticleImages();
+    public int addArticleImages(MultipartFile imgFile, Integer articleId) {
+        //先保存文件
+        String fileName = null;
+        String path = null;
+        Callable<Object> task = new SaveImagesTask(imgFile);
+        Future<Object> taskResult = ThreadPoolUtil.submit(task);
+        try {
+            Map<String,Object> resultMap =  (Map) taskResult.get();
+            fileName = (String) resultMap.get("fileName");
+            path = (String) resultMap.get("path");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            //logger.error("文件转换任务被中断: " + e);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        int articleImgId = 0;
+        if(!StringUtil.isEmpty(fileName)&&!StringUtil.isEmpty(path)){
+            ArticleImages articleImages = new ArticleImages();
 
-        articleImages.setOriginalname(imgFile.getOriginalFilename());
-        articleImages.setFilename(fileName);
-        articleImages.setArticleid(articleId);
-        articleImages.setImgtype(imgFile.getContentType());
-        articleImages.setFilepath(path);
-        return articleImagesMapper.insert(articleImages);
+            articleImages.setOriginalname(imgFile.getOriginalFilename());
+            articleImages.setFilename(fileName);
+            articleImages.setArticleid(articleId);
+            articleImages.setImgtype(imgFile.getContentType());
+            articleImages.setFilepath(path);
+            articleImagesMapper.insert(articleImages);
+            articleImgId = articleImages.getId();
+
+        }
+        return articleImgId;
     }
 
     @Override
