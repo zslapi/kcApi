@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kc.demo.dao.ArticleMapper" >
+  <resultMap id="BaseResultMap" type="com.kc.demo.model.Article" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="userId" property="userid" jdbcType="INTEGER" />
+    <result column="articleTypeId" property="articletypeid" jdbcType="INTEGER" />
+    <result column="articlestatus" property="articlestatus" jdbcType="INTEGER" />
+    <result column="ip" property="ip" jdbcType="VARCHAR" />
+    <result column="location" property="location" jdbcType="VARCHAR" />
+    <result column="collectionedCounts" property="collectionedcounts" jdbcType="INTEGER" />
+    <result column="praiseCount" property="praisecount" jdbcType="VARCHAR" />
+    <result column="treadCount" property="treadcount" jdbcType="VARCHAR" />
+    <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="topicId" property="topicid" jdbcType="INTEGER" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.kc.demo.model.Article" extends="BaseResultMap" >
+    <result column="content" property="content" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapForFollowArticle" type="com.kc.demo.model.Article" >
+    <result column="id" property="id" jdbcType="INTEGER" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="content" property="content" jdbcType="LONGVARCHAR" />
+    <result column="userNickName" property="usernickname" jdbcType="VARCHAR" />
+    <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, title, userId, articleTypeId, articlestatus, ip, location, collectionedCounts, 
+    praiseCount, treadCount, createTime,topicId
+  </sql>
+  <sql id="Blob_Column_List" >
+    content
+  </sql>
+  <sql id="Other_Column_List" >
+    userNickName
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from tb_article
+    where id = #{id,jdbcType=INTEGER}
+   </select>
+  <select id="selectByFilter" resultMap="ResultMapWithBLOBs" parameterType="Article">
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from tb_article
+    <where>
+      <if test="articletypeid != null and articletypeid != ''">
+        and articletypeid = #{articletypeid}
+      </if>
+      <if test="title != null and title != ''">
+        and title like "%"#{title}"%"
+      </if>
+      <if test="userid != null and userid != ''">
+        and userId = #{userid}
+      </if>
+    </where>
+    ORDER BY createTime DESC
+  </select>
+  <select id="selectListByArticleTypeId" resultMap="ResultMapForFollowArticle" parameterType="java.lang.Integer">
+    select
+    a.id id,
+    a.title title,
+    a.content content,
+    a.createTime createTime,
+    a.praiseCount praiseCount,
+    a.treadCount treadCount,
+    u.nickName userNickName
+    from tb_article a
+    left join tb_user_info u
+    on a.userId = u.id
+    where articleTypeId = #{articleTypeId,jdbcType=INTEGER}
+    ORDER BY createTime DESC
+  </select>
+  <select id="selectByUserIds" resultMap="ResultMapForFollowArticle" parameterType="java.util.List">
+    select
+    a.id id,
+    a.title title,
+    a.content content,
+    a.createTime createTime,
+    a.praiseCount praiseCount,
+    a.treadCount treadCount,
+    u.nickName userNickName
+    from tb_article a
+    left join tb_user_info u
+    on a.userId = u.id
+    <if test="list != null">
+    where
+      <foreach collection="list" item="userId" open="a.userId IN(" close=")" separator=",">
+        #{userId}
+      </foreach>
+    </if>
+    ORDER BY createTime DESC
+</select>
+    <select id="selectPraiseCount" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+        select
+        id,praiseCount
+        from tb_article
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectThreadCount" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+        select
+        id,treadCount
+        from tb_article
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+  <select id="selectCountByUserId" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+    select
+    count(id)
+    from tb_article
+    where userId = #{userId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from tb_article
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.kc.demo.model.Article" >
+    insert into tb_article (id, title, userId, 
+      articleTypeId, articlestatus, ip, 
+      location, collectionedCounts, praiseCount, 
+      treadCount, createTime, topicId, content
+      )
+    values (#{id,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{userid,jdbcType=INTEGER}, 
+      #{articletypeid,jdbcType=INTEGER}, #{articlestatus,jdbcType=INTEGER}, #{ip,jdbcType=VARCHAR}, 
+      #{location,jdbcType=VARCHAR}, #{collectionedcounts,jdbcType=INTEGER}, #{praisecount,jdbcType=VARCHAR}, 
+      #{treadcount,jdbcType=VARCHAR}, now(), #{topicid,jdbcType=INTEGER}, #{content,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.kc.demo.model.Article" >
+    insert into tb_article
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="title != null" >
+        title,
+      </if>
+      <if test="userid != null" >
+        userId,
+      </if>
+      <if test="articletypeid != null" >
+        articleTypeId,
+      </if>
+      <if test="articlestatus != null" >
+        articlestatus,
+      </if>
+      <if test="ip != null" >
+        ip,
+      </if>
+      <if test="location != null" >
+        location,
+      </if>
+      <if test="collectionedcounts != null" >
+        collectionedCounts,
+      </if>
+      <if test="praisecount != null" >
+        praiseCount,
+      </if>
+      <if test="treadcount != null" >
+        treadCount,
+      </if>
+      <if test="createtime != null" >
+        createTime,
+      </if>
+      <if test="topicid != null" >
+        topicId,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="userid != null" >
+        #{userid,jdbcType=INTEGER},
+      </if>
+      <if test="articletypeid != null" >
+        #{articletypeid,jdbcType=INTEGER},
+      </if>
+      <if test="articlestatus != null" >
+        #{articlestatus,jdbcType=INTEGER},
+      </if>
+      <if test="ip != null" >
+        #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="location != null" >
+        #{location,jdbcType=VARCHAR},
+      </if>
+      <if test="collectionedcounts != null" >
+        #{collectionedcounts,jdbcType=INTEGER},
+      </if>
+      <if test="praisecount != null" >
+        #{praisecount,jdbcType=VARCHAR},
+      </if>
+      <if test="treadcount != null" >
+        #{treadcount,jdbcType=VARCHAR},
+      </if>
+      <if test="createtime != null" >
+        now(),
+      </if>
+      <if test="topicid != null" >
+        #{topicid,jdbcType=INTEGER},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.kc.demo.model.Article" >
+    update tb_article
+    <set >
+      <if test="title != null" >
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="userid != null" >
+        userId = #{userid,jdbcType=INTEGER},
+      </if>
+      <if test="articletypeid != null" >
+        articleTypeId = #{articletypeid,jdbcType=INTEGER},
+      </if>
+      <if test="articlestatus != null" >
+        articlestatus = #{articlestatus,jdbcType=INTEGER},
+      </if>
+      <if test="ip != null" >
+        ip = #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="location != null" >
+        location = #{location,jdbcType=VARCHAR},
+      </if>
+      <if test="collectionedcounts != null" >
+        collectionedCounts = #{collectionedcounts,jdbcType=INTEGER},
+      </if>
+      <if test="praisecount != null" >
+        praiseCount = #{praisecount,jdbcType=VARCHAR},
+      </if>
+      <if test="treadcount != null" >
+        treadCount = #{treadcount,jdbcType=VARCHAR},
+      </if>
+      <if test="createtime != null" >
+        createTime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="topicid != null" >
+        topicId = #{topicid,jdbcType=INTEGER},
+      </if>
+      <if test="content != null" >
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.kc.demo.model.Article" >
+    update tb_article
+    set title = #{title,jdbcType=VARCHAR},
+      userId = #{userid,jdbcType=INTEGER},
+      articleTypeId = #{articletypeid,jdbcType=INTEGER},
+      articlestatus = #{articlestatus,jdbcType=INTEGER},
+      ip = #{ip,jdbcType=VARCHAR},
+      location = #{location,jdbcType=VARCHAR},
+      collectionedCounts = #{collectionedcounts,jdbcType=INTEGER},
+      praiseCount = #{praisecount,jdbcType=VARCHAR},
+      treadCount = #{treadcount,jdbcType=VARCHAR},
+      createTime = #{createtime,jdbcType=TIMESTAMP},
+      topicId = #{topicid,jdbcType=INTEGER},
+      content = #{content,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.kc.demo.model.Article" >
+    update tb_article
+    set title = #{title,jdbcType=VARCHAR},
+      userId = #{userid,jdbcType=INTEGER},
+      articleTypeId = #{articletypeid,jdbcType=INTEGER},
+      articlestatus = #{articlestatus,jdbcType=INTEGER},
+      ip = #{ip,jdbcType=VARCHAR},
+      location = #{location,jdbcType=VARCHAR},
+      collectionedCounts = #{collectionedcounts,jdbcType=INTEGER},
+      praiseCount = #{praisecount,jdbcType=VARCHAR},
+      treadCount = #{treadcount,jdbcType=VARCHAR},
+      createTime = #{createtime,jdbcType=TIMESTAMP},
+      topicId = #{topicid,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

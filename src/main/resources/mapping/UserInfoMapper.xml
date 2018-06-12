@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kc.demo.dao.UserInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.kc.demo.model.UserInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="nickName" property="nickname" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="identityNumber" property="identitynumber" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="BIT" />
+    <result column="headImageUrl" property="headimageurl" jdbcType="VARCHAR" />
+    <result column="userStatus" property="userstatus" jdbcType="INTEGER" />
+    <result column="age" property="age" jdbcType="INTEGER" />
+    <result column="userTypeId" property="usertypeid" jdbcType="INTEGER" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="location" property="location" jdbcType="VARCHAR" />
+    <result column="ip" property="ip" jdbcType="VARCHAR" />
+    <result column="level" property="level" jdbcType="INTEGER" />
+    <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, nickName, name, identityNumber, email, sex, headImageUrl, userStatus, age, userTypeId, 
+    address, location, ip, level, createTime
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_user_info
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectByWeChatId" resultMap="BaseResultMap" parameterType="java.lang.String">
+    SELECT
+    u.id id,
+    u.name name,
+    u.headImageUrl headImageUrl
+    from tb_user_info u
+    left join tb_login l
+    on u.id = l.userId
+    where l.wechatId = #{wechatid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from tb_user_info
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.kc.demo.model.UserInfo" >
+    insert into tb_user_info (id, nickName, name, 
+      identityNumber, email, sex, 
+      headImageUrl, userStatus, age, 
+      userTypeId, address, location, 
+      ip, level, createTime
+      )
+    values (#{id,jdbcType=INTEGER}, #{nickname,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{identitynumber,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{sex,jdbcType=BIT}, 
+      #{headimageurl,jdbcType=VARCHAR}, #{userstatus,jdbcType=INTEGER}, #{age,jdbcType=INTEGER}, 
+      #{usertypeid,jdbcType=INTEGER}, #{address,jdbcType=VARCHAR}, #{location,jdbcType=VARCHAR}, 
+      #{ip,jdbcType=VARCHAR}, #{level,jdbcType=INTEGER}, now()
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.kc.demo.model.UserInfo" >
+    insert into tb_user_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="nickname != null" >
+        nickName,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="identitynumber != null" >
+        identityNumber,
+      </if>
+      <if test="email != null" >
+        email,
+      </if>
+      <if test="sex != null" >
+        sex,
+      </if>
+      <if test="headimageurl != null" >
+        headImageUrl,
+      </if>
+      <if test="userstatus != null" >
+        userStatus,
+      </if>
+      <if test="age != null" >
+        age,
+      </if>
+      <if test="usertypeid != null" >
+        userTypeId,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="location != null" >
+        location,
+      </if>
+      <if test="ip != null" >
+        ip,
+      </if>
+      <if test="level != null" >
+        level,
+      </if>
+      <if test="createtime != null" >
+        createTime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="nickname != null" >
+        #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="identitynumber != null" >
+        #{identitynumber,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        #{sex,jdbcType=BIT},
+      </if>
+      <if test="headimageurl != null" >
+        #{headimageurl,jdbcType=VARCHAR},
+      </if>
+      <if test="userstatus != null" >
+        #{userstatus,jdbcType=INTEGER},
+      </if>
+      <if test="age != null" >
+        #{age,jdbcType=INTEGER},
+      </if>
+      <if test="usertypeid != null" >
+        #{usertypeid,jdbcType=INTEGER},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="location != null" >
+        #{location,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null" >
+        #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null" >
+        #{level,jdbcType=INTEGER},
+      </if>
+      <if test="createtime != null" >
+        now(),
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.kc.demo.model.UserInfo" >
+    update tb_user_info
+    <set >
+      <if test="nickname != null" >
+        nickName = #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="identitynumber != null" >
+        identityNumber = #{identitynumber,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        sex = #{sex,jdbcType=BIT},
+      </if>
+      <if test="headimageurl != null" >
+        headImageUrl = #{headimageurl,jdbcType=VARCHAR},
+      </if>
+      <if test="userstatus != null" >
+        userStatus = #{userstatus,jdbcType=INTEGER},
+      </if>
+      <if test="age != null" >
+        age = #{age,jdbcType=INTEGER},
+      </if>
+      <if test="usertypeid != null" >
+        userTypeId = #{usertypeid,jdbcType=INTEGER},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="location != null" >
+        location = #{location,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null" >
+        ip = #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null" >
+        level = #{level,jdbcType=INTEGER},
+      </if>
+      <if test="createtime != null" >
+        createTime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.kc.demo.model.UserInfo" >
+    update tb_user_info
+    set nickName = #{nickname,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      identityNumber = #{identitynumber,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=BIT},
+      headImageUrl = #{headimageurl,jdbcType=VARCHAR},
+      userStatus = #{userstatus,jdbcType=INTEGER},
+      age = #{age,jdbcType=INTEGER},
+      userTypeId = #{usertypeid,jdbcType=INTEGER},
+      address = #{address,jdbcType=VARCHAR},
+      location = #{location,jdbcType=VARCHAR},
+      ip = #{ip,jdbcType=VARCHAR},
+      level = #{level,jdbcType=INTEGER},
+      createTime = #{createtime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

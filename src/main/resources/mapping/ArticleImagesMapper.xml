@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kc.demo.dao.ArticleImagesMapper" >
+  <resultMap id="BaseResultMap" type="com.kc.demo.model.ArticleImages" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="originalName" property="originalname" jdbcType="VARCHAR" />
+    <result column="fileName" property="filename" jdbcType="VARCHAR" />
+    <result column="imgType" property="imgtype" jdbcType="VARCHAR" />
+    <result column="articleId" property="articleid" jdbcType="INTEGER" />
+    <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="filePath" property="filepath" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, originalName, fileName, imgType, articleId, createTime, filePath
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_article_imgages
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectArticleImageList" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+      select
+      id, fileName, imgType
+      from tb_article_imgages
+      where articleId = #{articleId,jdbcType=INTEGER}
+      order by id ASC
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from tb_article_imgages
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.kc.demo.model.ArticleImages" >
+    insert into tb_article_imgages (id, originalName, fileName, 
+      imgType, articleId, createTime, 
+      filePath)
+    values (#{id,jdbcType=INTEGER}, #{originalname,jdbcType=VARCHAR}, #{filename,jdbcType=VARCHAR}, 
+      #{imgtype,jdbcType=VARCHAR}, #{articleid,jdbcType=INTEGER}, now(),
+      #{filepath,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.kc.demo.model.ArticleImages" >
+    insert into tb_article_imgages
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="originalname != null" >
+        originalName,
+      </if>
+      <if test="filename != null" >
+        fileName,
+      </if>
+      <if test="imgtype != null" >
+        imgType,
+      </if>
+      <if test="articleid != null" >
+        articleId,
+      </if>
+      <if test="createtime != null" >
+        createTime,
+      </if>
+      <if test="filepath != null" >
+        filePath,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="originalname != null" >
+        #{originalname,jdbcType=VARCHAR},
+      </if>
+      <if test="filename != null" >
+        #{filename,jdbcType=VARCHAR},
+      </if>
+      <if test="imgtype != null" >
+        #{imgtype,jdbcType=VARCHAR},
+      </if>
+      <if test="articleid != null" >
+        #{articleid,jdbcType=INTEGER},
+      </if>
+      <if test="createtime != null" >
+        now(),
+      </if>
+      <if test="filepath != null" >
+        #{filepath,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.kc.demo.model.ArticleImages" >
+    update tb_article_imgages
+    <set >
+      <if test="originalname != null" >
+        originalName = #{originalname,jdbcType=VARCHAR},
+      </if>
+      <if test="filename != null" >
+        fileName = #{filename,jdbcType=VARCHAR},
+      </if>
+      <if test="imgtype != null" >
+        imgType = #{imgtype,jdbcType=VARCHAR},
+      </if>
+      <if test="articleid != null" >
+        articleId = #{articleid,jdbcType=INTEGER},
+      </if>
+      <if test="createtime != null" >
+        createTime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="filepath != null" >
+        filePath = #{filepath,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.kc.demo.model.ArticleImages" >
+    update tb_article_imgages
+    set originalName = #{originalname,jdbcType=VARCHAR},
+      fileName = #{filename,jdbcType=VARCHAR},
+      imgType = #{imgtype,jdbcType=VARCHAR},
+      articleId = #{articleid,jdbcType=INTEGER},
+      createTime = #{createtime,jdbcType=TIMESTAMP},
+      filePath = #{filepath,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
