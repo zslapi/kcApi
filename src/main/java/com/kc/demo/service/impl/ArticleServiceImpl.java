@@ -1,6 +1,7 @@
 package com.kc.demo.service.impl;
 
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.kc.demo.bean.MyConfig;
 import com.kc.demo.dao.ArticleImagesMapper;
 import com.kc.demo.dao.ArticleMapper;
@@ -55,17 +56,20 @@ public class ArticleServiceImpl implements ArticleService {
      * @return
      */
     @Override
-    public List<Article> getArticleListByArticleTypeId(Integer articleTypeId,Integer pageNum,Integer pageSize) {
-//        Article a = new Article();
-//        a.setArticletypeid(articleTypeId);
+    public Map<String,Object> getArticleListByArticleTypeId(Integer articleTypeId,Integer pageNum,Integer pageSize) {
+        Map<String,Object> resultMap = new HashMap<>();
         PageHelper.startPage(pageNum, pageSize);
         List<Article> articleList = articleMapper.selectListByArticleTypeId(articleTypeId);
         addTimeAgoInList(articleList);
-        return articleList;
+        PageInfo<Article> pageInfo = new PageInfo<>(articleList);
+        resultMap.put("total",pageInfo.getTotal());
+        resultMap.put("list",pageInfo.getList());
+        return resultMap;
     }
 
     @Override
-    public List<Article> getUserFollowArticles(Integer userId,Integer pageNum,Integer pageSize) {
+    public Map<String,Object> getUserFollowArticles(Integer userId,Integer pageNum,Integer pageSize) {
+        Map<String,Object> resultMap = new HashMap<>();
         List<UserFollow> followList = userFollowMapper.selectByUserId(userId);
         List<Integer> userIds = new ArrayList<>();
         for(UserFollow follow:followList){
@@ -74,7 +78,10 @@ public class ArticleServiceImpl implements ArticleService {
         PageHelper.startPage(pageNum, pageSize);
         List<Article> articles = articleMapper.selectByUserIds(userIds);
         addTimeAgoInList(articles);
-        return articles;
+        PageInfo<Article> pageInfo = new PageInfo<>(articles);
+        resultMap.put("total",pageInfo.getTotal());
+        resultMap.put("list",pageInfo.getList());
+        return resultMap;
     }
 
     private void addTimeAgoInList(List<Article> articleList) {
@@ -86,20 +93,30 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<Article> getArticleListByTitleKey(String titleKey,Integer pageNum,Integer pageSize) {
+    public Map<String,Object> getArticleListByTitleKey(String titleKey,Integer pageNum,Integer pageSize) {
+        Map<String,Object> resultMap = new HashMap<>();
         Article article = new Article();
         article.setTitle(titleKey);
         PageHelper.startPage(pageNum, pageSize);
-        return articleMapper.selectByFilter(article);
+        List<Article> articleList = articleMapper.selectByFilter(article);
+        PageInfo<Article> pageInfo = new PageInfo<>(articleList);
+        resultMap.put("total",pageInfo.getTotal());
+        resultMap.put("list",pageInfo.getList());
+        return resultMap;
     }
 
     @Override
-    public List<Article> getArticleListByTopic(String topic,Integer pageNum,Integer pageSize) {
+    public Map<String,Object> getArticleListByTopic(String topic,Integer pageNum,Integer pageSize) {
+        Map<String,Object> resultMap = new HashMap<>();
         Article article = new Article();
         article.setTitle(topic);
         article.setArticletypeid(2);
         PageHelper.startPage(pageNum, pageSize);
-        return articleMapper.selectByFilter(article);
+        List<Article> articleList = articleMapper.selectByFilter(article);
+        PageInfo<Article> pageInfo = new PageInfo<>(articleList);
+        resultMap.put("total",pageInfo.getTotal());
+        resultMap.put("list",pageInfo.getList());
+        return resultMap;
     }
 
     @Override

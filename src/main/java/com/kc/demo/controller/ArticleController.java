@@ -1,5 +1,6 @@
 package com.kc.demo.controller;
 
+import com.github.pagehelper.PageInfo;
 import com.kc.demo.bean.MyConfig;
 import com.kc.demo.jobs.PreviewArticleImageTask;
 import com.kc.demo.model.Article;
@@ -114,7 +115,7 @@ public class ArticleController {
                                  @RequestParam(value = "pageNum") Integer pageNum,
                                  @RequestParam(value = "pageSize") Integer pageSize) {
         Result result = new Result();
-        List<Article> data = null;
+        Map<String,Object> data = null;
         try {
             data = articleService.getArticleListByArticleTypeId(articletypeid,pageNum,pageSize);
         } catch (Exception e) {
@@ -140,7 +141,7 @@ public class ArticleController {
                      @RequestParam(value = "pageNum") Integer pageNum,
                      @RequestParam(value = "pageSize") Integer pageSize) {
         Result result = new Result();
-        List<Article> data = null;
+        Map<String,Object> data = null;
         try {
             data = articleService.getUserFollowArticles(userid,pageNum,pageSize);
         } catch (Exception e) {
@@ -166,7 +167,7 @@ public class ArticleController {
                             @RequestParam(value = "pageNum") Integer pageNum,
                             @RequestParam(value = "pageSize") Integer pageSize) {
         Result result = new Result();
-        List<Article> data = null;
+        Map<String,Object> data = null;
         try {
             data = articleService.getArticleListByTitleKey(articletitle,pageNum,pageSize);
         } catch (Exception e) {
@@ -192,7 +193,7 @@ public class ArticleController {
                        @RequestParam(value = "pageNum") Integer pageNum,
                        @RequestParam(value = "pageSize") Integer pageSize) {
         Result result = new Result();
-        List<Article> data = null;
+        Map<String,Object> data = null;
         try {
             data = articleService.getArticleListByTopic(topic,pageNum,pageSize);
         } catch (Exception e) {
