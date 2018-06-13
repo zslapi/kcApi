@@ -2,6 +2,7 @@ package com.kc.demo;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -10,7 +11,6 @@ import org.springframework.context.annotation.PropertySource;
 
 
 @SpringBootApplication
-@PropertySource("application.properties")
 @MapperScan("com.kc.demo.dao")
 public class DemokcApplication extends SpringBootServletInitializer {
 

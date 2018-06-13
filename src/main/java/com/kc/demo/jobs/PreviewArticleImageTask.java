@@ -1,8 +1,8 @@
 package com.kc.demo.jobs;
 
-import com.kc.demo.util.ConfigUtil;
-import com.kc.demo.util.Constants;
-import com.kc.demo.util.SpringUtil;
+import com.kc.demo.bean.MyConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,10 +23,9 @@ public class PreviewArticleImageTask implements Callable<Object> {
     //图片ResponseEntity
     private ResponseEntity<?> responseEntity;
 
-    public PreviewArticleImageTask (String fileName) {
+    public PreviewArticleImageTask (String fileName,String articleImagesPath) {
         this.fileName = fileName;
-        ConfigUtil configUtil = SpringUtil.getBean(ConfigUtil.class);
-        this.articleImagesPath = configUtil.getProperty("common.path.images.article");
+        this.articleImagesPath = articleImagesPath;
     }
 
     @Override

@@ -1,5 +1,10 @@
 package com.kc.demo.util;
 
+import com.kc.demo.bean.MyConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
+import javax.annotation.Resource;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -13,9 +18,9 @@ public class ThreadPoolUtil {
     private static ThreadPoolUtil ins;
     private static final ReentrantLock lock = new ReentrantLock();
 
+
     private ThreadPoolUtil() {
-        ConfigUtil configUtil = SpringUtil.getBean(ConfigUtil.class);
-        this.fixedThreadPool = Executors.newFixedThreadPool(Integer.valueOf(configUtil.getProperty("common.maximumPoolSize")));
+        this.fixedThreadPool = Executors.newFixedThreadPool(20);
     }
 
     private static ThreadPoolUtil getInstance() {

@@ -49,11 +49,10 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 微信用户登录
-     *
-     * @param wechatid1
-     * @param s
      * @param wechatid
      * @param token
+     * @param nickname
+     * @param headimageurl
      * @return
      * @throws Exception
      */

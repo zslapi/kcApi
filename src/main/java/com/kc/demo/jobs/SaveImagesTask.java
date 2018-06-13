@@ -1,8 +1,9 @@
 package com.kc.demo.jobs;
 
-import com.kc.demo.util.ConfigUtil;
+import com.kc.demo.bean.MyConfig;
 import com.kc.demo.util.Constants;
-import com.kc.demo.util.SpringUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,11 +11,8 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class SaveImagesTask implements Callable<Object> {
-
     /**
      *请求文件
      */
@@ -25,10 +23,9 @@ public class SaveImagesTask implements Callable<Object> {
      */
     private String path;
 
-    public SaveImagesTask(MultipartFile multipartFile){
-        ConfigUtil configUtil = SpringUtil.getBean(ConfigUtil.class);
+    public SaveImagesTask(MultipartFile multipartFile,String path){
+        this.path = path;
         this.multipartFile = multipartFile;
-        this.path = configUtil.getProperty("common.path.images.article");
     }
 
     @Override

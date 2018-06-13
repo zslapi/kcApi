@@ -1,5 +1,6 @@
 package com.kc.demo.controller;
 
+import com.kc.demo.bean.MyConfig;
 import com.kc.demo.jobs.PreviewArticleImageTask;
 import com.kc.demo.model.Article;
 import com.kc.demo.service.ArticleService;
@@ -284,6 +285,8 @@ public class ArticleController {
         return result;
     }
 
+    @Resource
+    private MyConfig myConfig;
     /**
      * 预览文章图片
      * @param fileName
@@ -292,15 +295,12 @@ public class ArticleController {
     @RequestMapping(value="/images/{fileName}",produces = MediaType.IMAGE_PNG_VALUE)
      @ResponseBody
      public ResponseEntity<?> getFile(@PathVariable String fileName) {
-        Callable<Object> task = new PreviewArticleImageTask(fileName);
+        Callable<Object> task = new PreviewArticleImageTask(fileName,myConfig.getImagesPath());
         Future<Object> taskResult = ThreadPoolUtil.submit(task);
         ResponseEntity<?> responseEntity = null;
         try {
             responseEntity = (ResponseEntity<?>) taskResult.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            return ResponseEntity.notFound().build();
-        } catch (ExecutionException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.notFound().build();
         }

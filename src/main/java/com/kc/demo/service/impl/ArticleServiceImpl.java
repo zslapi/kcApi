@@ -1,6 +1,7 @@
 package com.kc.demo.service.impl;
 
 import com.github.pagehelper.PageHelper;
+import com.kc.demo.bean.MyConfig;
 import com.kc.demo.dao.ArticleImagesMapper;
 import com.kc.demo.dao.ArticleMapper;
 import com.kc.demo.dao.UserFollowMapper;
@@ -14,6 +15,7 @@ import com.kc.demo.util.ImageUtil;
 import com.kc.demo.util.StringUtil;
 import com.kc.demo.util.ThreadPoolUtil;
 import com.kc.demo.vo.ArticleDetailVo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,6 +38,9 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Resource
     private ArticleImagesMapper articleImagesMapper;
+
+    @Resource
+    private MyConfig myConfig;
 
     @Override
     public int add(Article record) {
@@ -134,7 +139,7 @@ public class ArticleServiceImpl implements ArticleService {
         //先保存文件
         String fileName = null;
         String path = null;
-        Callable<Object> task = new SaveImagesTask(imgFile);
+        Callable<Object> task = new SaveImagesTask(imgFile,myConfig.getImagesPath());
         Future<Object> taskResult = ThreadPoolUtil.submit(task);
         try {
             Map<String,Object> resultMap =  (Map) taskResult.get();
