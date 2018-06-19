@@ -13,6 +13,7 @@ public class MyConfig {
     @Value("${myconfig.maximumPoolSize}")
     private String maximumPoolSize;
 
+    //
     public String getImagesPath() {
         return imagesPath;
     }
