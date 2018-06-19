@@ -12,7 +12,7 @@ public class Constants {
         return UUID.randomUUID().toString().replace("-", "");
     }
 
-    public static String serverUrl() {return "https://api.paimeigd.com/kcApi/";}
+    public static String serverUrl() {return "https://api.paimeigd.com/";}
 
     public static String articleImgFilePath() {return "/kcApi/upload/images/article/";}
 }
