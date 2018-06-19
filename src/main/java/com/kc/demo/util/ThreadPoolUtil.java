@@ -1,10 +1,5 @@
 package com.kc.demo.util;
 
-import com.kc.demo.bean.MyConfig;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-
-import javax.annotation.Resource;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

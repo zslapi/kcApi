@@ -5,6 +5,9 @@ import com.kc.demo.model.Comment;
 import com.kc.demo.service.CommentService;
 import com.kc.demo.util.StringUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -20,6 +23,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     public int praiseComment(Integer commentId,Integer userId) {
         Comment comment = commentMapper.selectPraiseCount(commentId);
         if(comment==null){
@@ -43,6 +47,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     public int treadComment(Integer commentId,Integer userId) {
         Comment comment = commentMapper.selectTreadCount(commentId);
         if(comment==null){

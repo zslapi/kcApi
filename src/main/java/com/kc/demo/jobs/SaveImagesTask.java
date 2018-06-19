@@ -1,9 +1,6 @@
 package com.kc.demo.jobs;
 
-import com.kc.demo.bean.MyConfig;
 import com.kc.demo.util.Constants;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 

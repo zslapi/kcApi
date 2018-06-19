@@ -1,23 +1,14 @@
 package com.kc.demo.controller;
 
-import com.github.pagehelper.PageInfo;
-import com.kc.demo.bean.MyConfig;
+import com.kc.demo.config.MyConfig;
 import com.kc.demo.jobs.PreviewArticleImageTask;
 import com.kc.demo.model.Article;
 import com.kc.demo.service.ArticleService;
 import com.kc.demo.util.*;
 import com.kc.demo.vo.ArticleDetailVo;
 import com.kc.demo.vo.Result;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemIterator;
-import org.apache.commons.fileupload.FileItemStream;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -26,19 +17,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.ws.spi.http.HttpHandler;
 import java.io.*;
-import java.nio.file.Paths;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 
 @Controller
 @RequestMapping("/article")
 public class ArticleController {
+    private Logger logger = LogManager.getLogger(ArticleController.class);
+
     @Resource
     private ArticleService articleService;
 
@@ -90,6 +79,7 @@ public class ArticleController {
     Result getArticleDetailView(@PathVariable(value = "articleId") Integer articleId) {
         Result result = new Result();
         ArticleDetailVo detail = null;
+
         try {
             detail = articleService.getArticleDetail(articleId);
         } catch (Exception e) {

@@ -1,22 +1,6 @@
 package com.kc.demo.util;
 
-import com.kc.demo.bean.MyConfig;
-import com.kc.demo.jobs.PreviewArticleImageTask;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class ImageUtil {
     /**

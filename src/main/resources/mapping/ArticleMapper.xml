@@ -54,7 +54,7 @@
         and articletypeid = #{articletypeid}
       </if>
       <if test="title != null and title != ''">
-        and title like "%"#{title}"%"
+        and title like CONCAT(CONCAT("%",#{title},"%"))
       </if>
       <if test="userid != null and userid != ''">
         and userId = #{userid}

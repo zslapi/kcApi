@@ -2,7 +2,7 @@ package com.kc.demo.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.kc.demo.bean.MyConfig;
+import com.kc.demo.config.MyConfig;
 import com.kc.demo.dao.ArticleImagesMapper;
 import com.kc.demo.dao.ArticleMapper;
 import com.kc.demo.dao.UserFollowMapper;
@@ -12,17 +12,16 @@ import com.kc.demo.model.ArticleImages;
 import com.kc.demo.model.UserFollow;
 import com.kc.demo.service.ArticleService;
 import com.kc.demo.util.Constants;
-import com.kc.demo.util.ImageUtil;
 import com.kc.demo.util.StringUtil;
 import com.kc.demo.util.ThreadPoolUtil;
 import com.kc.demo.vo.ArticleDetailVo;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -31,6 +30,9 @@ import java.util.concurrent.Future;
 
 @Service
 public class ArticleServiceImpl implements ArticleService {
+
+    private Logger logger = LogManager.getLogger(ArticleServiceImpl.class);
+
     @Resource
     private ArticleMapper articleMapper;
 
@@ -44,6 +46,7 @@ public class ArticleServiceImpl implements ArticleService {
     private MyConfig myConfig;
 
     @Override
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     public int add(Article record) {
         articleMapper.insert(record);
         int id = record.getId();
@@ -84,6 +87,10 @@ public class ArticleServiceImpl implements ArticleService {
         return resultMap;
     }
 
+    /**
+     * 在文章列表中增加timeAgo字段
+     * @param articleList
+     */
     private void addTimeAgoInList(List<Article> articleList) {
         for (Article article:articleList) {
             Date createTimeDate = article.getCreatetime();
@@ -120,6 +127,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     public int praiseArticle(Integer articleId) {
         Article article = articleMapper.selectPraiseCount(articleId);
         if(article==null){
@@ -136,6 +144,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     public int treadArticle(Integer articleId) {
         Article article = articleMapper.selectThreadCount(articleId);
         if(article==null){
@@ -152,6 +161,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     public int addArticleImages(MultipartFile imgFile, Integer articleId) {
         //先保存文件
         String fileName = null;
@@ -186,6 +196,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public ArticleDetailVo getArticleDetail(Integer articleId) {
+        logger.info("测试一下：文章详情");
         Article article = articleMapper.selectByPrimaryKey(articleId);
         ArticleDetailVo detailVo = new ArticleDetailVo();
         detailVo.setTitle(article.getTitle());
@@ -208,6 +219,11 @@ public class ArticleServiceImpl implements ArticleService {
         return detailVo;
     }
 
+    /**
+     * 根据创建时间获取距离当前时间的时长
+     * @param createTimeDate
+     * @return
+     */
     private String getTimeAgoAsString(Date createTimeDate) {
         Timestamp nowTime = new Timestamp(System.currentTimeMillis());
         String timeAgo = "";
