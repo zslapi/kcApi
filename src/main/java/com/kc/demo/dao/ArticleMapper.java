@@ -25,9 +25,7 @@ public interface ArticleMapper {
 
     int updateByPrimaryKey(Article record);
 
-    Article selectPraiseCount(Integer id);
-
-    Article selectThreadCount(Integer id);
+    Article selectPraiseTreadCount(Integer id);
 
     int selectCountByUserId(Integer userId);
 }

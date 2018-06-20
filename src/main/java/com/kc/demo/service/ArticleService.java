@@ -20,9 +20,9 @@ public interface ArticleService {
 
     Map<String,Object> getArticleListByTopic (String topic,Integer pageNum,Integer pageSize);//获取话题列表
 
-    int praiseArticle(Integer articleId);
+    int praiseArticle(Integer userId,Integer articleId);
 
-    int treadArticle(Integer articleId);
+    int treadArticle(Integer userId,Integer articleId);
 
     int addArticleImages(MultipartFile imgFile, Integer articleId) throws FileNotFoundException;
 

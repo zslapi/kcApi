@@ -97,15 +97,9 @@
     </if>
     ORDER BY createTime DESC
 </select>
-    <select id="selectPraiseCount" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+  <select id="selectPraiseTreadCount" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
         select
-        id,praiseCount
-        from tb_article
-        where id = #{id,jdbcType=INTEGER}
-    </select>
-    <select id="selectThreadCount" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-        select
-        id,treadCount
+        id,praiseCount,treadCount
         from tb_article
         where id = #{id,jdbcType=INTEGER}
     </select>

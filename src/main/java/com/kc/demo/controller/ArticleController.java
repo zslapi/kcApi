@@ -205,10 +205,11 @@ public class ArticleController {
      */
     @RequestMapping("/praise")
     public @ResponseBody
-    Result praiseArticle(@RequestParam("articleId") Integer articleId) {
+    Result praiseArticle(@RequestParam(value = "userid") Integer userId,
+                         @RequestParam(value = "articleId") Integer articleId) {
         Result result = new Result();
         try {
-            articleService.praiseArticle(articleId);
+            articleService.praiseArticle(userId,articleId);
         } catch (Exception e) {
             e.printStackTrace();
             result.setStatusCode("500");
@@ -227,10 +228,11 @@ public class ArticleController {
      */
     @RequestMapping("/tread")
     public @ResponseBody
-    Result threadArticle(@RequestParam("articleId") Integer articleId) {
+    Result threadArticle(@RequestParam(value = "userid") Integer userId,
+                         @RequestParam("articleId") Integer articleId) {
         Result result = new Result();
         try {
-            articleService.treadArticle(articleId);
+            articleService.treadArticle(userId,articleId);
         } catch (Exception e) {
             e.printStackTrace();
             result.setStatusCode("500");

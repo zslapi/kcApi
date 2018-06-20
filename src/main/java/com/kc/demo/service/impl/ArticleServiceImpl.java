@@ -5,10 +5,12 @@ import com.github.pagehelper.PageInfo;
 import com.kc.demo.config.MyConfig;
 import com.kc.demo.dao.ArticleImagesMapper;
 import com.kc.demo.dao.ArticleMapper;
+import com.kc.demo.dao.PraiseTreadMapper;
 import com.kc.demo.dao.UserFollowMapper;
 import com.kc.demo.jobs.SaveImagesTask;
 import com.kc.demo.model.Article;
 import com.kc.demo.model.ArticleImages;
+import com.kc.demo.model.PraiseTread;
 import com.kc.demo.model.UserFollow;
 import com.kc.demo.service.ArticleService;
 import com.kc.demo.util.Constants;
@@ -41,6 +43,9 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Resource
     private ArticleImagesMapper articleImagesMapper;
+
+    @Resource
+    private PraiseTreadMapper praiseTreadMapper;
 
     @Resource
     private MyConfig myConfig;
@@ -128,36 +133,115 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
-    public int praiseArticle(Integer articleId) {
-        Article article = articleMapper.selectPraiseCount(articleId);
+    public int praiseArticle(Integer userId,Integer articleId) {
+        int result = 0;
+        Article article = articleMapper.selectPraiseTreadCount(articleId);
         if(article==null){
-            return 0;
+            return result;
         }
-        String praiseCount =  article.getPraisecount();
-        int count = 0;
-        if(!StringUtil.isEmpty(praiseCount)){
-            count = Integer.parseInt(praiseCount);
+        String praiseCountStr =  article.getPraisecount();
+        String treadCountStr = article.getTreadcount();
+        int praiseCount = 0;
+        int treadCount = 0;
+        if(!StringUtil.isEmpty(praiseCountStr)){
+            praiseCount = Integer.parseInt(praiseCountStr);
+            treadCount = Integer.parseInt(treadCountStr);
         }
-        count = count + 1;
-        article.setPraisecount(String.valueOf(count));
-        return articleMapper.updateByPrimaryKeySelective(article);
+        HashMap hashMap = new HashMap();
+        hashMap.put("userId",userId);
+        hashMap.put("articleId",articleId);
+        PraiseTread praiseTread = praiseTreadMapper.selectByArticleId(hashMap);
+        PraiseTread praiseTreadIn = new PraiseTread();
+        praiseTreadIn.setUserid(userId);
+        praiseTreadIn.setArticleid(articleId);
+        if(praiseTread == null) {
+            praiseTreadIn.setIspraise(true);
+            praiseCount += 1;
+            result = praiseTreadMapper.insert(praiseTreadIn);
+        }else {
+            if(praiseTread.getIspraise() == null) {
+                praiseTreadIn.setIspraise(true);
+                praiseCount += 1;
+                if(praiseTread.getIstread() != null && praiseTread.getIstread() == true){
+                    praiseTreadIn.setIstread(false);
+                    treadCount -= 1;
+
+                }
+            } else{
+                if(praiseTread.getIspraise() == true){
+                    praiseTreadIn.setIspraise(false);
+                    praiseCount -= 1;
+                }else{
+                    praiseTreadIn.setIspraise(true);
+                    praiseCount += 1;
+                    if(praiseTread.getIstread() != null && praiseTread.getIstread() == true){
+                        praiseTreadIn.setIstread(false);
+                        treadCount -= 1;
+                    }
+                }
+            }
+            result = praiseTreadMapper.updatePraiseTread(praiseTreadIn);
+        }
+        article.setPraisecount(String.valueOf(praiseCount));
+        article.setTreadcount(String.valueOf(treadCount));
+        articleMapper.updateByPrimaryKeySelective(article);
+        return result;
     }
 
     @Override
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
-    public int treadArticle(Integer articleId) {
-        Article article = articleMapper.selectThreadCount(articleId);
+    public int treadArticle(Integer userId,Integer articleId) {
+        int result = 0;
+        Article article = articleMapper.selectPraiseTreadCount(articleId);
         if(article==null){
-            return 0;
+            return result;
         }
-        String treadcount = article.getTreadcount();
-        int count = 0;
-        if(!StringUtil.isEmpty(treadcount)){
-            count = Integer.parseInt(treadcount);
+        String praiseCountStr =  article.getPraisecount();
+        String treadCountStr = article.getTreadcount();
+        int praiseCount = 0;
+        int treadCount = 0;
+        if(!StringUtil.isEmpty(praiseCountStr)){
+            praiseCount = Integer.parseInt(praiseCountStr);
+            treadCount = Integer.parseInt(treadCountStr);
         }
-        count = count + 1;
-        article.setTreadcount(String.valueOf(count));
-        return articleMapper.updateByPrimaryKeySelective(article);
+        HashMap hashMap = new HashMap();
+        hashMap.put("userId",userId);
+        hashMap.put("articleId",articleId);
+        PraiseTread praiseTread = praiseTreadMapper.selectByArticleId(hashMap);
+        PraiseTread praiseTreadIn = new PraiseTread();
+        praiseTreadIn.setUserid(userId);
+        praiseTreadIn.setArticleid(articleId);
+        if(praiseTread == null) {
+            praiseTreadIn.setIstread(true);
+            treadCount += 1;
+            result = praiseTreadMapper.insert(praiseTreadIn);
+        }else {
+            if(praiseTread.getIstread() == null) {
+                praiseTreadIn.setIstread(true);
+                treadCount += 1;
+                if(praiseTread.getIspraise() != null && praiseTread.getIspraise() == true){
+                    praiseTreadIn.setIspraise(false);
+                    praiseCount -= 1;
+                }
+            } else{
+                if(praiseTread.getIstread() == true){
+                    praiseTreadIn.setIstread(false);
+                    treadCount -= 1;
+                }else{
+                    praiseTreadIn.setIstread(true);
+                    treadCount += 1;
+                    if(praiseTread.getIspraise() != null && praiseTread.getIspraise() == true){
+                        praiseTreadIn.setIspraise(false);
+                        praiseCount -= 1;
+                    }
+                }
+            }
+            result = praiseTreadMapper.updatePraiseTread(praiseTreadIn);
+        }
+        article.setPraisecount(String.valueOf(praiseCount));
+        article.setTreadcount(String.valueOf(treadCount));
+        articleMapper.updateByPrimaryKeySelective(article);
+        return result;
     }
 
     @Override
