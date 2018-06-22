@@ -20,6 +20,26 @@ public class ArticleDetailVo {
 
     private String treadCount;
 
+    private Boolean ispraise;
+
+    private Boolean isTread;
+
+    public Boolean getIspraise() {
+        return this.ispraise;
+    }
+
+    public void setIspraise(boolean ispraise) {
+        this.ispraise = ispraise ;
+    }
+
+    public Boolean getIsTread() {
+        return this.isTread;
+    }
+
+    public void setIsTread(boolean isTread) {
+        this.isTread = isTread;
+    }
+
 
     public String getPraiseCount() {
         return praiseCount;

@@ -143,48 +143,53 @@ public class ArticleServiceImpl implements ArticleService {
         String treadCountStr = article.getTreadcount();
         int praiseCount = 0;
         int treadCount = 0;
-        if(!StringUtil.isEmpty(praiseCountStr)){
+        if(!StringUtil.isEmpty(praiseCountStr) && !StringUtil.isEmpty(treadCountStr)){
             praiseCount = Integer.parseInt(praiseCountStr);
             treadCount = Integer.parseInt(treadCountStr);
         }
         HashMap hashMap = new HashMap();
         hashMap.put("userId",userId);
         hashMap.put("articleId",articleId);
-        PraiseTread praiseTread = praiseTreadMapper.selectByArticleId(hashMap);
-        PraiseTread praiseTreadIn = new PraiseTread();
-        praiseTreadIn.setUserid(userId);
-        praiseTreadIn.setArticleid(articleId);
-        if(praiseTread == null) {
-            praiseTreadIn.setIspraise(true);
-            praiseCount += 1;
-            result = praiseTreadMapper.insert(praiseTreadIn);
-        }else {
-            if(praiseTread.getIspraise() == null) {
+        try {
+            PraiseTread praiseTread = praiseTreadMapper.selectByArticleId(hashMap);
+            PraiseTread praiseTreadIn = new PraiseTread();
+            praiseTreadIn.setUserid(userId);
+            praiseTreadIn.setArticleid(articleId);
+            if(praiseTread == null) {
                 praiseTreadIn.setIspraise(true);
                 praiseCount += 1;
-                if(praiseTread.getIstread() != null && praiseTread.getIstread() == true){
-                    praiseTreadIn.setIstread(false);
-                    treadCount -= 1;
-
-                }
-            } else{
-                if(praiseTread.getIspraise() == true){
-                    praiseTreadIn.setIspraise(false);
-                    praiseCount -= 1;
-                }else{
+                praiseTreadMapper.insert(praiseTreadIn);
+            }else {
+                if(praiseTread.getIspraise() == null) {
                     praiseTreadIn.setIspraise(true);
                     praiseCount += 1;
                     if(praiseTread.getIstread() != null && praiseTread.getIstread() == true){
                         praiseTreadIn.setIstread(false);
                         treadCount -= 1;
+
+                    }
+                } else{
+                    if(praiseTread.getIspraise() == true){
+                        praiseTreadIn.setIspraise(false);
+                        praiseCount -= 1;
+                    }else{
+                        praiseTreadIn.setIspraise(true);
+                        praiseCount += 1;
+                        if(praiseTread.getIstread() != null && praiseTread.getIstread() == true){
+                            praiseTreadIn.setIstread(false);
+                            treadCount -= 1;
+                        }
                     }
                 }
+                praiseTreadMapper.updatePraiseTread(praiseTreadIn);
             }
-            result = praiseTreadMapper.updatePraiseTread(praiseTreadIn);
+            article.setPraisecount(String.valueOf(praiseCount));
+            article.setTreadcount(String.valueOf(treadCount));
+            result = articleMapper.updateByPrimaryKeySelective(article);
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
         }
-        article.setPraisecount(String.valueOf(praiseCount));
-        article.setTreadcount(String.valueOf(treadCount));
-        articleMapper.updateByPrimaryKeySelective(article);
         return result;
     }
 
@@ -200,47 +205,53 @@ public class ArticleServiceImpl implements ArticleService {
         String treadCountStr = article.getTreadcount();
         int praiseCount = 0;
         int treadCount = 0;
-        if(!StringUtil.isEmpty(praiseCountStr)){
+        if(!StringUtil.isEmpty(praiseCountStr) && !StringUtil.isEmpty(treadCountStr)){
             praiseCount = Integer.parseInt(praiseCountStr);
             treadCount = Integer.parseInt(treadCountStr);
         }
         HashMap hashMap = new HashMap();
         hashMap.put("userId",userId);
         hashMap.put("articleId",articleId);
-        PraiseTread praiseTread = praiseTreadMapper.selectByArticleId(hashMap);
-        PraiseTread praiseTreadIn = new PraiseTread();
-        praiseTreadIn.setUserid(userId);
-        praiseTreadIn.setArticleid(articleId);
-        if(praiseTread == null) {
-            praiseTreadIn.setIstread(true);
-            treadCount += 1;
-            result = praiseTreadMapper.insert(praiseTreadIn);
-        }else {
-            if(praiseTread.getIstread() == null) {
+        try {
+            PraiseTread praiseTread = praiseTreadMapper.selectByArticleId(hashMap);
+            PraiseTread praiseTreadIn = new PraiseTread();
+            praiseTreadIn.setUserid(userId);
+            praiseTreadIn.setArticleid(articleId);
+            if(praiseTread == null) {
                 praiseTreadIn.setIstread(true);
                 treadCount += 1;
-                if(praiseTread.getIspraise() != null && praiseTread.getIspraise() == true){
-                    praiseTreadIn.setIspraise(false);
-                    praiseCount -= 1;
-                }
-            } else{
-                if(praiseTread.getIstread() == true){
-                    praiseTreadIn.setIstread(false);
-                    treadCount -= 1;
-                }else{
+                praiseTreadMapper.insert(praiseTreadIn);
+            }else {
+                if(praiseTread.getIstread() == null) {
                     praiseTreadIn.setIstread(true);
                     treadCount += 1;
                     if(praiseTread.getIspraise() != null && praiseTread.getIspraise() == true){
                         praiseTreadIn.setIspraise(false);
                         praiseCount -= 1;
                     }
+                } else{
+                    if(praiseTread.getIstread() == true){
+                        praiseTreadIn.setIstread(false);
+                        treadCount -= 1;
+                    }else{
+                        praiseTreadIn.setIstread(true);
+                        treadCount += 1;
+                        if(praiseTread.getIspraise() != null && praiseTread.getIspraise() == true){
+                            praiseTreadIn.setIspraise(false);
+                            praiseCount -= 1;
+                        }
+                    }
                 }
+                praiseTreadMapper.updatePraiseTread(praiseTreadIn);
             }
-            result = praiseTreadMapper.updatePraiseTread(praiseTreadIn);
+            article.setPraisecount(String.valueOf(praiseCount));
+            article.setTreadcount(String.valueOf(treadCount));
+            result = articleMapper.updateByPrimaryKeySelective(article);
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+
         }
-        article.setPraisecount(String.valueOf(praiseCount));
-        article.setTreadcount(String.valueOf(treadCount));
-        articleMapper.updateByPrimaryKeySelective(article);
         return result;
     }
 
@@ -250,7 +261,7 @@ public class ArticleServiceImpl implements ArticleService {
         //先保存文件
         String fileName = null;
         String path = null;
-        Callable<Object> task = new SaveImagesTask(imgFile,myConfig.getImagesPath());
+        Callable<Object> task = new SaveImagesTask(imgFile,myConfig.getImagesArticlePath());
         Future<Object> taskResult = ThreadPoolUtil.submit(task);
         try {
             Map<String,Object> resultMap =  (Map) taskResult.get();

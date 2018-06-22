@@ -99,9 +99,10 @@
 </select>
   <select id="selectPraiseTreadCount" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
         select
-        id,praiseCount,treadCount
+        id,userId,praiseCount,treadCount
         from tb_article
         where id = #{id,jdbcType=INTEGER}
+        for update
     </select>
   <select id="selectCountByUserId" resultType="java.lang.Integer" parameterType="java.lang.Integer">
     select
@@ -119,9 +120,9 @@
       location, collectionedCounts, praiseCount, 
       treadCount, createTime, topicId, content
       )
-    values (#{id,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{userid,jdbcType=INTEGER}, 
-      #{articletypeid,jdbcType=INTEGER}, #{articlestatus,jdbcType=INTEGER}, #{ip,jdbcType=VARCHAR}, 
-      #{location,jdbcType=VARCHAR}, #{collectionedcounts,jdbcType=INTEGER}, #{praisecount,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{userid,jdbcType=INTEGER},
+      #{articletypeid,jdbcType=INTEGER}, #{articlestatus,jdbcType=INTEGER}, #{ip,jdbcType=VARCHAR},
+      #{location,jdbcType=VARCHAR}, #{collectionedcounts,jdbcType=INTEGER}, #{praisecount,jdbcType=VARCHAR},
       #{treadcount,jdbcType=VARCHAR}, now(), #{topicid,jdbcType=INTEGER}, #{content,jdbcType=LONGVARCHAR}
       )
   </insert>

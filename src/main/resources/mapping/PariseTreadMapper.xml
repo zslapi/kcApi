@@ -16,11 +16,13 @@
         select userId,articleId,isPraise,isTread
         from tb_praise_tread
         where userId = #{userId,jdbcType=INTEGER} and articleId = #{articleId,jdbcType=INTEGER}
+        for update
     </select>
     <select id="selectByCommentId" resultMap="BaseResultMap">
         select userId,commentId,isPraise,isTread
         from tb_praise_tread
         where userId = #{userid,jdbcType=INTEGER} and commentId = #{commentid,jdbcType=INTEGER}
+        for update
     </select>
     <insert id="insert" parameterType="com.kc.demo.model.PraiseTread">
         insert into tb_praise_tread

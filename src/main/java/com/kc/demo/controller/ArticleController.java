@@ -243,6 +243,7 @@ public class ArticleController {
         return result;
     }
 
+
     @RequestMapping("/img/upload")
     public @ResponseBody Result uploadImg(@RequestParam("imgFile") MultipartFile imgFile,@RequestParam("articleId") Integer articleId,HttpServletRequest request)  {
         Result result = new Result();
