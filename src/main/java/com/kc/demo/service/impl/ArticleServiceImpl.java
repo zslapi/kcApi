@@ -24,10 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 @Service
@@ -99,7 +97,7 @@ public class ArticleServiceImpl implements ArticleService {
     private void addTimeAgoInList(List<Article> articleList) {
         for (Article article:articleList) {
             Date createTimeDate = article.getCreatetime();
-            String timeAgo = getTimeAgoAsString(createTimeDate);
+            String timeAgo = StringUtil.getTimeAgoAsString(createTimeDate);
             article.setTimeAgo(timeAgo);
         }
     }
@@ -263,16 +261,9 @@ public class ArticleServiceImpl implements ArticleService {
         String path = null;
         Callable<Object> task = new SaveImagesTask(imgFile,myConfig.getImagesArticlePath());
         Future<Object> taskResult = ThreadPoolUtil.submit(task);
-        try {
-            Map<String,Object> resultMap =  (Map) taskResult.get();
-            fileName = (String) resultMap.get("fileName");
-            path = (String) resultMap.get("path");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            //logger.error("文件转换任务被中断: " + e);
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+        Map<String,Object> resultMap =  SaveImagesTask.getSaveImgPath(taskResult);
+        fileName = (String)resultMap.get("fileName");
+        path = (String)resultMap.get("path");
         int articleImgId = 0;
         if(!StringUtil.isEmpty(fileName)&&!StringUtil.isEmpty(path)){
             ArticleImages articleImages = new ArticleImages();
@@ -300,7 +291,7 @@ public class ArticleServiceImpl implements ArticleService {
         detailVo.setTreadCount(article.getTreadcount());
         detailVo.setArticleId(article.getId());
         Date createTimeDate = article.getCreatetime();
-        String timeAgo = getTimeAgoAsString(createTimeDate);
+        String timeAgo = StringUtil.getTimeAgoAsString(createTimeDate);
         detailVo.setTimeAgo(timeAgo);
         String topicName = getTopicNameById(article.getTopicid());
         detailVo.setTopic(topicName);
@@ -314,30 +305,6 @@ public class ArticleServiceImpl implements ArticleService {
         return detailVo;
     }
 
-    /**
-     * 根据创建时间获取距离当前时间的时长
-     * @param createTimeDate
-     * @return
-     */
-    private String getTimeAgoAsString(Date createTimeDate) {
-        Timestamp nowTime = new Timestamp(System.currentTimeMillis());
-        String timeAgo = "";
-        if(createTimeDate != null) {
-            Timestamp articleCreateTime = new Timestamp(createTimeDate.getTime());
-            long dayAgo = (nowTime.getTime()-articleCreateTime.getTime())/(1000*60*60*24);
-            long hourAgo = (nowTime.getTime()-articleCreateTime.getTime())/(1000*60*60);
-            long minuteAgo = (nowTime.getTime()-articleCreateTime.getTime())/(1000*60);
-            if(dayAgo>=1){
-                timeAgo = (int)dayAgo+"天前";
-            } else if (hourAgo>0&&hourAgo<24) {
-                timeAgo = (int)hourAgo+"小时前";
-            } else if (minuteAgo>0) {
-                timeAgo = (int)minuteAgo+"分钟前";
-            }
-
-        }
-        return timeAgo;
-    }
 
     private String getTopicNameById (Integer id) {
         if("".equals(String.valueOf(id)) || "null".equals(String.valueOf(id))) {

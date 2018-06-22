@@ -10,9 +10,9 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.concurrent.Callable;
 
-public class PreviewArticleImageTask implements Callable<Object> {
-    //文章图片存放路径
-    private String articleImagesPath;
+public class PreviewImageTask implements Callable<Object> {
+    //图片存放路径
+    private String imagesPath;
 
     //文件名
     private String fileName;
@@ -20,14 +20,14 @@ public class PreviewArticleImageTask implements Callable<Object> {
     //图片ResponseEntity
     private ResponseEntity<?> responseEntity;
 
-    public PreviewArticleImageTask (String fileName,String articleImagesPath) {
+    public PreviewImageTask (String fileName,String ImagesPath) {
         this.fileName = fileName;
-        this.articleImagesPath = articleImagesPath;
+        this.imagesPath = ImagesPath;
     }
 
     @Override
     public Object call() throws Exception {
-        InputStream inputStream = new FileInputStream(new File(articleImagesPath+fileName));
+        InputStream inputStream = new FileInputStream(new File(imagesPath+fileName));
         InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
         HttpHeaders headers = new HttpHeaders();
         responseEntity = new ResponseEntity<>(inputStreamResource,headers, HttpStatus.OK);

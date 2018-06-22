@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kc.demo.dao.ComAnswerMapper" >
+    <resultMap id="BaseResultMap" type="com.kc.demo.model.ComAnswer" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="comQuestionId" property="comquestionid" jdbcType="INTEGER" />
+        <result column="userId" property="userid" jdbcType="INTEGER" />
+        <result column="title" property="Title" jdbcType="VARCHAR" />
+        <result column="content" property="content" jdbcType="VARCHAR" />
+        <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
+        <result column="questionStatus" property="questionstatus" jdbcType="INTEGER" />
+        <result column="questionTypeId" property="questiontypeid" jdbcType="INTEGER" />
+        <result column="ip" property="ip" jdbcType="VARCHAR" />
+        <result column="location" property="location" jdbcType="VARCHAR" />
+        <result column="collectionedCounts" property="collectionedcounts" jdbcType="INTEGER" />
+        <result column="praiseCount" property="praisecount" jdbcType="DECIMAL" />
+        <result column="treadCount" property="treadcount" jdbcType="DECIMAL" />
+        <result column="topicId" property="topicid" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+    id, comQuestionId, userId, title, content, createTime, ip, location,
+    questionStatus, questionTypeId, collectionedCounts
+    praiseCount, treadCount, topicId
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+        select
+        <include refid="Base_Column_List" />
+        from tb_community_answer
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectPraiseCount" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select
+    id,praiseUserIds,praiseCount
+    from tb_community_answer
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+    <select id="selectTreadCount" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select
+    id,treadUserIds,treadCount
+    from tb_community_answer
+    where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectByComQuestionId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+        select userId,
+      content, title,createTime,
+      location, praiseCount, treadCount,
+       from tb_community_answer where comQuestionId = #{comquestionid,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from tb_community_answer
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.kc.demo.model.ComAnswer" >
+    insert into tb_community_answer (id, comQuestionId, userId, title, content, createTime, ip, location,
+    questionStatus, questionTypeId, collectionedCounts,
+    praiseCount, treadCount, topicId)
+    values (#{id,jdbcType=INTEGER}, #{comquestionid,jdbcType=INTEGER}, #{userid,jdbcType=INTEGER},
+      #{title,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, now(),
+      #{ip,jdbcType=VARCHAR}, #{location,jdbcType=VARCHAR}, #{questionstatus,jdbcType=VARCHAR},
+      #{questiontypeid,jdbcType=DECIMAL}, #{collectionedcounts,jdbcType=INTEGER},
+      #{praisecount,jdbcType=VARCHAR}, #{treadcount,jdbcType=DECIMAL},
+      #{topicid,jdbcType=INTEGER})
+  </insert>
+    <insert id="insertSelective" parameterType="com.kc.demo.model.ComAnswer" >
+        insert into tb_community_answer
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                id,
+            </if>
+            <if test="comquestionid != null" >
+                comquestionid,
+            </if>
+            <if test="userid != null" >
+                userId,
+            </if>
+            <if test="title != null" >
+                title,
+            </if>
+            <if test="content != null" >
+                content,
+            </if>
+            <if test="createtime != null" >
+                createTime,
+            </if>
+            <if test="ip != null" >
+                ip,
+            </if>
+            <if test="location != null" >
+                location,
+            </if>
+            <if test="questionstatus != null" >
+                questionStatus,
+            </if>
+            <if test="questiontypeid != null">
+                questionTypeId,
+            </if>
+            <if test="collectionedcounts != null">
+                collectionedCounts,
+            </if>
+            <if test="praisecount != null" >
+                praiseCount,
+            </if>
+            <if test="treadcount != null" >
+                treadCount,
+            </if>
+            <if test="topicId != null" >
+                topicid,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="comquestionid != null" >
+                #{comquestionid,jdbcType=INTEGER},
+            </if>
+            <if test="userid != null" >
+                #{userid,jdbcType=INTEGER},
+            </if>
+            <if test="title != null" >
+                #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null" >
+                #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="createtime != null" >
+                now(),
+            </if>
+            <if test="ip != null" >
+                #{ip,jdbcType=VARCHAR},
+            </if>
+            <if test="location != null" >
+                #{location,jdbcType=VARCHAR},
+            </if>
+            <if test="questionstatus != null" >
+                #{questionstatus,jdbcType=VARCHAR},
+            </if>
+            <if test="questiontypeid != null">
+                #{questiontypeId,jdbcType=DECIMAL},
+            </if>
+            <if test="collectionedcounts != null">
+                #{collectionedcounts,jdbcType=INTEGER},
+            </if>
+            <if test="praisecount != null" >
+                #{praisecount,jdbcType=VARCHAR},
+            </if>
+            <if test="treadcount != null" >
+                #{treadcount,jdbcType=DECIMAL},
+            </if>
+            <if test="topicId != null" >
+                #{topicId,jdbcType=INTEGER}
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.kc.demo.model.ComAnswer" >
+        update tb_community_answer
+        <set >
+            <if test="comquestionid != null" >
+                comQuestionId = #{comquestionid,jdbcType=INTEGER},
+            </if>
+            <if test="userid != null" >
+                userId = #{userid,jdbcType=INTEGER},
+            </if>
+            <if test="content != null" >
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="createtime != null" >
+                createTime = #{createtime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="status != null" >
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="ip != null" >
+                ip = #{ip,jdbcType=VARCHAR},
+            </if>
+            <if test="location != null" >
+                location = #{location,jdbcType=VARCHAR},
+            </if>
+            <if test="praiseuserids != null" >
+                praiseUserIds = #{praiseuserids,jdbcType=VARCHAR},
+            </if>
+            <if test="praisecount != null" >
+                praiseCount = #{praisecount,jdbcType=DECIMAL},
+            </if>
+            <if test="treaduserids != null" >
+                treadUserIds = #{treaduserids,jdbcType=VARCHAR},
+            </if>
+            <if test="treadcount != null" >
+                treadCount = #{treadcount,jdbcType=DECIMAL},
+            </if>
+            <if test="parentid != null" >
+                parentId = #{parentid,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+</mapper>

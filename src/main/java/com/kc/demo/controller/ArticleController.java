@@ -1,7 +1,7 @@
 package com.kc.demo.controller;
 
 import com.kc.demo.config.MyConfig;
-import com.kc.demo.jobs.PreviewArticleImageTask;
+import com.kc.demo.jobs.PreviewImageTask;
 import com.kc.demo.model.Article;
 import com.kc.demo.service.ArticleService;
 import com.kc.demo.util.*;
@@ -243,7 +243,6 @@ public class ArticleController {
         return result;
     }
 
-
     @RequestMapping("/img/upload")
     public @ResponseBody Result uploadImg(@RequestParam("imgFile") MultipartFile imgFile,@RequestParam("articleId") Integer articleId,HttpServletRequest request)  {
         Result result = new Result();
@@ -289,7 +288,7 @@ public class ArticleController {
     @RequestMapping(value="/images/{fileName}",produces = MediaType.IMAGE_PNG_VALUE)
      @ResponseBody
      public ResponseEntity<?> getFile(@PathVariable String fileName) {
-        Callable<Object> task = new PreviewArticleImageTask(fileName,myConfig.getImagesPath());
+        Callable<Object> task = new PreviewImageTask(fileName,myConfig.getImagesArticlePath());
         Future<Object> taskResult = ThreadPoolUtil.submit(task);
         ResponseEntity<?> responseEntity = null;
         try {

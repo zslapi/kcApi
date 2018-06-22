@@ -7,11 +7,14 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "myconfig")
 @Component
 public class MyConfig {
-    @Value("${myconfig.imagesPath}")
+    @Value("/upload/images/comQuestion")
     private String imagesArticlePath;
 
-    @Value("/kcApi/upload/images/comQuestion")
+    @Value("/upload/images/comQuestion")
     private String imagesComQuestionPath;
+
+    @Value("/upload/images/comAnswer")
+    private String imagesComAnswerPath;
 
     @Value("${myconfig.maximumPoolSize}")
     private String maximumPoolSize;
@@ -25,9 +28,13 @@ public class MyConfig {
         this.imagesArticlePath = imagesArticlePath;
     }
 
-    public String getImagesComQuestion() { return imagesComQuestionPath; }
+    public String getImagesComQuestionPath() { return imagesComQuestionPath; }
 
     public void setImagesComQuestionPath(String imagesComQuestionPath) { this.imagesComQuestionPath = imagesComQuestionPath ;}
+
+    public String getImagesComAnswerPath() { return imagesComAnswerPath; }
+
+    public void setImagesComAnswerPath(String imagesComAnswerPath) { this.imagesComAnswerPath = imagesComAnswerPath ;}
 
     public String getMaximumPoolSize() {
         return maximumPoolSize;

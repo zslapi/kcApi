@@ -19,6 +19,6 @@ public interface ComQuestionService {
 
     int treadQuestion(Integer userId, Integer questionId);
 
-    int addQuestionImages(MultipartFile imgFile, Integer articleId) throws FileNotFoundException;
+    int addQuestionImages(MultipartFile imgFile, Integer questionId) throws FileNotFoundException;
 
 }

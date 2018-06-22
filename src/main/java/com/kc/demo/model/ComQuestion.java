@@ -7,6 +7,8 @@ import java.util.Date;
 public class ComQuestion {
     private Integer id;
 
+    private Integer comQuestionId;
+
     private String title;
 
     private String content;
@@ -36,6 +38,10 @@ public class ComQuestion {
     public Integer getId() { return id; }
 
     public void setId(Integer id) { this.id = id; }
+
+    public Integer getComQuestionIdId() { return comQuestionId; }
+
+    public void setComQuestionId(Integer comQuestionId) { this.comQuestionId = comQuestionId; }
 
     public String getTitle() {
         return title;

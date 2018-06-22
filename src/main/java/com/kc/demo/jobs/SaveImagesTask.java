@@ -8,6 +8,8 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class SaveImagesTask implements Callable<Object> {
     /**
@@ -74,5 +76,22 @@ public class SaveImagesTask implements Callable<Object> {
         String[] strs = full.split("[.]");
         String suffix = strs[strs.length-1];
         return suffix;
+    }
+
+    public static Map<String,Object> getSaveImgPath(Future<Object> taskResult){
+        Map<String,Object> returnMap = new HashMap<>();
+        try {
+            Map<String,Object> resultMap =  (Map) taskResult.get();
+            String fileName = (String) resultMap.get("fileName");
+            String path = (String) resultMap.get("path");
+            returnMap.put("fileName",fileName);
+            returnMap.put("path",path);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            //logger.error("文件转换任务被中断: " + e);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return returnMap;
     }
 }

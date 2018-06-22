@@ -15,7 +15,7 @@ public interface CommentMapper {
 
     int updateByPrimaryKey(Comment record);
 
-    Comment selectPraiseCount(Integer commentId);
+    Comment selectPraiseCount(Integer comAnswerId);
 
-    Comment selectTreadCount(Integer commentId);
+    Comment selectTreadCount(Integer comAnswerId);
 }

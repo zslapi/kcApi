@@ -2,27 +2,44 @@ package com.kc.demo.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.kc.demo.config.MyConfig;
 import com.kc.demo.dao.ComQuestionMapper;
+import com.kc.demo.dao.CommunityImagesMapper;
+import com.kc.demo.jobs.SaveImagesTask;
 import com.kc.demo.model.Article;
+import com.kc.demo.model.ArticleImages;
 import com.kc.demo.model.ComQuestion;
+import com.kc.demo.model.CommunityImages;
 import com.kc.demo.service.ComQuestionService;
+import com.kc.demo.util.StringUtil;
+import com.kc.demo.util.ThreadPoolUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.FileNotFoundException;
+import java.security.Key;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @Service
 public class ComQuestionServicelmpl implements ComQuestionService {
 
     @Resource
     private ComQuestionMapper comQuestionMapper;
+
+    @Resource
+    private MyConfig myConfig;
+
+    @Resource
+    private CommunityImagesMapper communityImagesMapper;
 
     /**
      * 发布问题
@@ -40,33 +57,9 @@ public class ComQuestionServicelmpl implements ComQuestionService {
     private void addTimeAgoInList(List<ComQuestion> comQuestionList) {
         for (ComQuestion comQuestion:comQuestionList) {
             Date createTimeDate = comQuestion.getCreatetime();
-            String timeAgo = getTimeAgoAsString(createTimeDate);
+            String timeAgo = StringUtil.getTimeAgoAsString(createTimeDate);
             comQuestion.setTimeAgo(timeAgo);
         }
-    }
-    /**
-     * 根据创建时间获取距离当前时间的时长
-     * @param createTimeDate
-     * @return
-     */
-    private String getTimeAgoAsString(Date createTimeDate) {
-        Timestamp nowTime = new Timestamp(System.currentTimeMillis());
-        String timeAgo = "";
-        if(createTimeDate != null) {
-            Timestamp articleCreateTime = new Timestamp(createTimeDate.getTime());
-            long dayAgo = (nowTime.getTime()-articleCreateTime.getTime())/(1000*60*60*24);
-            long hourAgo = (nowTime.getTime()-articleCreateTime.getTime())/(1000*60*60);
-            long minuteAgo = (nowTime.getTime()-articleCreateTime.getTime())/(1000*60);
-            if(dayAgo>=1){
-                timeAgo = (int)dayAgo+"天前";
-            } else if (hourAgo>0&&hourAgo<24) {
-                timeAgo = (int)hourAgo+"小时前";
-            } else if (minuteAgo>0) {
-                timeAgo = (int)minuteAgo+"分钟前";
-            }
-
-        }
-        return timeAgo;
     }
 
 
@@ -153,9 +146,35 @@ public class ComQuestionServicelmpl implements ComQuestionService {
         return 0;
     }
 
+    /**
+     * 添加问题的图片
+     * @param imgFile
+     * @param comQuestionId
+     * @return
+     * @throws FileNotFoundException
+     */
     @Override
     @Transactional(rollbackFor = {RuntimeException.class,Exception.class})
-    public int addQuestionImages(MultipartFile imgFile, Integer articleId) throws FileNotFoundException {
-        return 0;
+    public int addQuestionImages(MultipartFile imgFile, Integer comQuestionId) throws FileNotFoundException {
+        //先保存文件
+        String fileName = null;
+        String path = null;
+        Callable<Object> task = new SaveImagesTask(imgFile,myConfig.getImagesComQuestionPath());
+        Future<Object> taskResult = ThreadPoolUtil.submit(task);
+        Map<String,Object> resultMap = SaveImagesTask.getSaveImgPath(taskResult);
+        fileName = (String) resultMap.get("fileName");
+        path = (String)resultMap.get("path");
+        int comQuestionImgId = 0;
+        if(!StringUtil.isEmpty(fileName)&&!StringUtil.isEmpty(path)){
+            CommunityImages communityImages = new CommunityImages();
+            communityImages.setOriginalname(imgFile.getOriginalFilename());
+            communityImages.setFilename(fileName);
+            communityImages.setComquestionid(comQuestionId);
+            communityImages.setImgtype(imgFile.getContentType());
+            communityImages.setFilepath(path);
+            communityImagesMapper.insert(communityImages);
+            comQuestionImgId = communityImages.getId();
+        }
+        return comQuestionImgId;
     }
 }
