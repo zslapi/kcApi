@@ -6,6 +6,8 @@ import java.util.Date;
 public class Article {
     private Integer id;
 
+    private Integer contentid;
+
     private String title;
 
     private Integer userid;
@@ -29,6 +31,8 @@ public class Article {
     private String content;
 
     private String usernickname;
+
+    private String userheadimageurl;
 
     private String timeAgo;
 
@@ -141,4 +145,12 @@ public class Article {
     public Integer getTopicid() {return topicid;}
 
     public void setTopicid(Integer topicid) {this.topicid = topicid;}
+
+    public Integer getContentid() { return this.contentid;}
+
+    public void setContentid(Integer contentid){this.contentid =contentid;}
+
+    public String getUserheadimageurl() {return userheadimageurl;}
+
+    public void setUserheadimageurl(String userheadimageurl){this.userheadimageurl = userheadimageurl;}
 }

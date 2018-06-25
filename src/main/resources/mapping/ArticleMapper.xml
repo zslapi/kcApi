@@ -24,6 +24,7 @@
     <result column="content" property="content" jdbcType="LONGVARCHAR" />
     <result column="userNickName" property="usernickname" jdbcType="VARCHAR" />
     <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="userHeadImageUrl" property="userheadimageurl" jdbcType="VARCHAR"/>
   </resultMap>
   <sql id="Base_Column_List" >
     id, title, userId, articleTypeId, articlestatus, ip, location, collectionedCounts, 
@@ -33,7 +34,7 @@
     content
   </sql>
   <sql id="Other_Column_List" >
-    userNickName
+    userNickName,userHeadImageUrl
   </sql>
   <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
     select 
@@ -45,10 +46,17 @@
    </select>
   <select id="selectByFilter" resultMap="ResultMapWithBLOBs" parameterType="Article">
     select
-    <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from tb_article
+    a.id id,
+    a.title title,
+    a.content content,
+    a.createTime createTime,
+    a.praiseCount praiseCount,
+    a.treadCount treadCount,
+    u.nickName userNickName,
+    u.headImageUrl userHeadImageUrl
+    from tb_article a
+    left join tb_user_info u
+    on a.userId = u.id
     <where>
       <if test="articletypeid != null and articletypeid != ''">
         and articletypeid = #{articletypeid}
@@ -70,7 +78,8 @@
     a.createTime createTime,
     a.praiseCount praiseCount,
     a.treadCount treadCount,
-    u.nickName userNickName
+    u.nickName userNickName,
+    u.headImageUrl userHeadImageUrl
     from tb_article a
     left join tb_user_info u
     on a.userId = u.id
@@ -85,7 +94,8 @@
     a.createTime createTime,
     a.praiseCount praiseCount,
     a.treadCount treadCount,
-    u.nickName userNickName
+    u.nickName userNickName,
+    u.headImageUrl userHeadImageUrl
     from tb_article a
     left join tb_user_info u
     on a.userId = u.id
@@ -97,6 +107,21 @@
     </if>
     ORDER BY createTime DESC
 </select>
+  <select id="selectArticleDetailByPrimaryKey" resultMap="ResultMapForFollowArticle" parameterType="java.util.List">
+    select
+    a.id id,
+    a.title title,
+    a.content content,
+    a.createTime createTime,
+    a.praiseCount praiseCount,
+    a.treadCount treadCount,
+    u.nickName userNickName,
+    u.headImageUrl userHeadImageUrl
+    from tb_article a
+    left join tb_user_info u
+    on a.userId = u.id where a.id = #{id,jdbcType=INTEGER}
+  </select>
+
   <select id="selectPraiseTreadCount" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
         select
         id,userId,praiseCount,treadCount

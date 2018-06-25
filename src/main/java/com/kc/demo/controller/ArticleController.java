@@ -4,8 +4,10 @@ import com.kc.demo.config.MyConfig;
 import com.kc.demo.jobs.PreviewImageTask;
 import com.kc.demo.model.Article;
 import com.kc.demo.service.ArticleService;
+import com.kc.demo.service.ComAnswerService;
+import com.kc.demo.service.ComQuestionService;
 import com.kc.demo.util.*;
-import com.kc.demo.vo.ArticleDetailVo;
+import com.kc.demo.vo.ViewDetailVo;
 import com.kc.demo.vo.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,12 +26,21 @@ import java.util.concurrent.Future;
 
 
 @Controller
-@RequestMapping("/article")
+@RequestMapping(value = "/article")
 public class ArticleController {
     private Logger logger = LogManager.getLogger(ArticleController.class);
 
     @Resource
     private ArticleService articleService;
+
+    @Resource
+    private ComQuestionService comQuestionService;
+
+    @Resource
+    private ComAnswerService comAnswerService;
+
+    @Resource
+    private MyConfig myConfig;
 
     /**
      * 发布文章
@@ -41,7 +52,7 @@ public class ArticleController {
      * @param topicid
      * @return
      */
-    @RequestMapping("/publish")
+    @RequestMapping(value = "/publish" ,method = RequestMethod.POST)
     public @ResponseBody
     Result publishArticle(@RequestParam(value = "userid", required = false) String userid,
                           @RequestParam(value = "title", required = false) String title,
@@ -74,40 +85,63 @@ public class ArticleController {
         return result;
     }
 
-    @RequestMapping("/detail/view/{articleId}")
+    /**
+     * 详情预览
+     * @param userId
+     * @param typeId (0文章，1问题，2回答)
+     * @param contentId
+     * @return
+     */
+    @RequestMapping("/detail/view")
     public @ResponseBody
-    Result getArticleDetailView(@PathVariable(value = "articleId") Integer articleId) {
+    Result getArticleDetailView(@RequestParam(value = "userid", required = false) Integer userId ,
+                                @RequestParam(value = "typeid", required = false) Integer typeId ,
+                                @RequestParam(value = "contentid", required = false)Integer contentId,
+                                @RequestParam(value = "pagenum", required = false)Integer pageNum,
+                                @RequestParam(value = "pagesize", required = false)Integer pageSize) {
         Result result = new Result();
-        ArticleDetailVo detail = null;
-
+        ViewDetailVo detail = null;
         try {
-            detail = articleService.getArticleDetail(articleId);
+            switch (typeId)
+            {
+                case 0:
+                    detail = articleService.getArticleDetail(userId,contentId);
+                    break;
+                case 1:{
+                    detail = comQuestionService.getComQuestionDetail(userId,contentId,pageNum,pageSize);
+                    break;
+                }
+                case 2:{
+                    detail = comAnswerService.getComAnswerDetail(userId,contentId);
+                    break;
+                }
+            }
+            result.setStatusCode("200");
+            result.setData(detail);
         } catch (Exception e) {
             e.printStackTrace();
             result.setStatusCode("500");
             result.setErrorMsg(e.getMessage());
             return result;
         }
-        result.setStatusCode("200");
-        result.setData(detail);
         return result;
     }
 
     /**
      * 根据板块id获取文章列表
      *
-     * @param articletypeid
+     * @param articleTypeId
      * @return
      */
     @RequestMapping(value = "/section/{articletypeid}")
     public @ResponseBody
-    Result getArticleSectionList(@PathVariable(value = "articletypeid", required = false) Integer articletypeid,
-                                 @RequestParam(value = "pageNum") Integer pageNum,
-                                 @RequestParam(value = "pageSize") Integer pageSize) {
+    Result getArticleSectionList(@PathVariable(value = "articletypeid", required = false) Integer articleTypeId,
+                                 @RequestParam(value = "pagenum") Integer pageNum,
+                                 @RequestParam(value = "pagesize") Integer pageSize) {
         Result result = new Result();
         Map<String,Object> data = null;
         try {
-            data = articleService.getArticleListByArticleTypeId(articletypeid,pageNum,pageSize);
+            data = articleService.getArticleListByArticleTypeId(articleTypeId,pageNum,pageSize);
         } catch (Exception e) {
             e.printStackTrace();
             result.setStatusCode("500");
@@ -128,8 +162,8 @@ public class ArticleController {
     @RequestMapping("/follow/{userid}")
     public @ResponseBody
     Result getFollow(@PathVariable(value = "userid", required = false) Integer userid,
-                     @RequestParam(value = "pageNum") Integer pageNum,
-                     @RequestParam(value = "pageSize") Integer pageSize) {
+                     @RequestParam(value = "pagenum") Integer pageNum,
+                     @RequestParam(value = "pagesize") Integer pageSize) {
         Result result = new Result();
         Map<String,Object> data = null;
         try {
@@ -154,8 +188,8 @@ public class ArticleController {
     @RequestMapping("/search")
     public @ResponseBody
     Result searchByTitleKey(@RequestParam("articletitle") String articletitle,
-                            @RequestParam(value = "pageNum") Integer pageNum,
-                            @RequestParam(value = "pageSize") Integer pageSize) {
+                            @RequestParam(value = "pagenum") Integer pageNum,
+                            @RequestParam(value = "pagesize") Integer pageSize) {
         Result result = new Result();
         Map<String,Object> data = null;
         try {
@@ -180,8 +214,8 @@ public class ArticleController {
     @RequestMapping("/topic/search")
     public @ResponseBody
     Result searchTopic(@RequestParam("topic") String topic,
-                       @RequestParam(value = "pageNum") Integer pageNum,
-                       @RequestParam(value = "pageSize") Integer pageSize) {
+                       @RequestParam(value = "pagenum") Integer pageNum,
+                       @RequestParam(value = "pagesize") Integer pageSize) {
         Result result = new Result();
         Map<String,Object> data = null;
         try {
@@ -206,7 +240,7 @@ public class ArticleController {
     @RequestMapping("/praise")
     public @ResponseBody
     Result praiseArticle(@RequestParam(value = "userid") Integer userId,
-                         @RequestParam(value = "articleId") Integer articleId) {
+                         @RequestParam(value = "articleid") Integer articleId) {
         Result result = new Result();
         try {
             articleService.praiseArticle(userId,articleId);
@@ -229,7 +263,7 @@ public class ArticleController {
     @RequestMapping("/tread")
     public @ResponseBody
     Result threadArticle(@RequestParam(value = "userid") Integer userId,
-                         @RequestParam("articleId") Integer articleId) {
+                         @RequestParam(value = "articleid") Integer articleId) {
         Result result = new Result();
         try {
             articleService.treadArticle(userId,articleId);
@@ -243,8 +277,15 @@ public class ArticleController {
         return result;
     }
 
+    /**
+     * 上传文章图片
+     * @param imgFile
+     * @param articleId
+     * @param request
+     * @return
+     */
     @RequestMapping("/img/upload")
-    public @ResponseBody Result uploadImg(@RequestParam("imgFile") MultipartFile imgFile,@RequestParam("articleId") Integer articleId,HttpServletRequest request)  {
+    public @ResponseBody Result uploadImg(@RequestParam("imgFile") MultipartFile imgFile,@RequestParam("articleid") Integer articleId,HttpServletRequest request)  {
         Result result = new Result();
         if (imgFile.isEmpty() || StringUtil.isEmpty(imgFile.getOriginalFilename())) {
             result.setStatusCode("500");
@@ -278,8 +319,6 @@ public class ArticleController {
         return result;
     }
 
-    @Resource
-    private MyConfig myConfig;
     /**
      * 预览文章图片
      * @param fileName

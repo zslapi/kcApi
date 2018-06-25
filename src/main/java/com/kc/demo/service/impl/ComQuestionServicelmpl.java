@@ -3,16 +3,15 @@ package com.kc.demo.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.kc.demo.config.MyConfig;
-import com.kc.demo.dao.ComQuestionMapper;
-import com.kc.demo.dao.CommunityImagesMapper;
+import com.kc.demo.dao.*;
 import com.kc.demo.jobs.SaveImagesTask;
-import com.kc.demo.model.Article;
-import com.kc.demo.model.ArticleImages;
-import com.kc.demo.model.ComQuestion;
-import com.kc.demo.model.CommunityImages;
+import com.kc.demo.model.*;
 import com.kc.demo.service.ComQuestionService;
+import com.kc.demo.util.Constants;
 import com.kc.demo.util.StringUtil;
 import com.kc.demo.util.ThreadPoolUtil;
+import com.kc.demo.vo.PraiseTreadVo;
+import com.kc.demo.vo.ViewDetailVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,10 +20,7 @@ import javax.annotation.Resource;
 import java.io.FileNotFoundException;
 import java.security.Key;
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -40,6 +36,14 @@ public class ComQuestionServicelmpl implements ComQuestionService {
 
     @Resource
     private CommunityImagesMapper communityImagesMapper;
+
+    @Resource
+    private PraiseTreadMapper praiseTreadMapper;
+
+    @Resource
+    private UserInfoMapper userInfoMapper;
+
+    @Resource ComAnswerMapper comAnswerMapper;
 
     /**
      * 发布问题
@@ -127,11 +131,69 @@ public class ComQuestionServicelmpl implements ComQuestionService {
      * @param questionId
      * @return
      */
+
     @Override
     @Transactional(rollbackFor = {RuntimeException.class,Exception.class})
     public int praiseQuestion(Integer userId,Integer questionId) {
+        int result = 0;
+        ComQuestion comQuestion = comQuestionMapper.selectPraiseTreadCount(questionId);
+        if(comQuestion==null){
+            return result;
+        }
+        String praiseCountStr =  comQuestion.getPraisecount();
+        String treadCountStr = comQuestion.getTreadcount();
+        int praiseCount = 0;
+        int treadCount = 0;
+        if(!StringUtil.isEmpty(praiseCountStr) && !StringUtil.isEmpty(treadCountStr)){
+            praiseCount = Integer.parseInt(praiseCountStr);
+            treadCount = Integer.parseInt(treadCountStr);
+        }
+        HashMap hashMap = new HashMap();
+        hashMap.put("userId",userId);
+        hashMap.put("contentId",questionId);
+        hashMap.put("typeId",2);
+        try {
+            PraiseTread praiseTread = praiseTreadMapper.selectByTypeIdConId(hashMap);
+            PraiseTread praiseTreadIn = new PraiseTread();
+            praiseTreadIn.setUserid(userId);
+            praiseTreadIn.setContentid(questionId);
+            praiseTreadIn.setTypeid(2);
+            if(praiseTread == null) {
+                praiseTreadIn.setIspraise(true);
+                praiseCount += 1;
+                praiseTreadMapper.insert(praiseTreadIn);
+            }else {
+                if(praiseTread.getIspraise() == null) {
+                    praiseTreadIn.setIspraise(true);
+                    praiseCount += 1;
+                    if(praiseTread.getIstread() != null && praiseTread.getIstread() == true){
+                        praiseTreadIn.setIstread(false);
+                        treadCount -= 1;
 
-        return 0;
+                    }
+                } else{
+                    if(praiseTread.getIspraise() == true){
+                        praiseTreadIn.setIspraise(false);
+                        praiseCount -= 1;
+                    }else{
+                        praiseTreadIn.setIspraise(true);
+                        praiseCount += 1;
+                        if(praiseTread.getIstread() != null && praiseTread.getIstread() == true){
+                            praiseTreadIn.setIstread(false);
+                            treadCount -= 1;
+                        }
+                    }
+                }
+                praiseTreadMapper.updatePraiseTread(praiseTreadIn);
+            }
+            comQuestion.setPraisecount(String.valueOf(praiseCount));
+            comQuestion.setTreadcount(String.valueOf(treadCount));
+            result = comQuestionMapper.updateByPrimaryKeySelective(comQuestion);
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+        }
+        return result;
     }
 
     /**
@@ -143,7 +205,65 @@ public class ComQuestionServicelmpl implements ComQuestionService {
     @Override
     @Transactional(rollbackFor = {RuntimeException.class,Exception.class})
     public int treadQuestion(Integer userId,Integer questionId){
-        return 0;
+        int result = 0;
+        ComQuestion comQuestion = comQuestionMapper.selectPraiseTreadCount(questionId);
+        if(comQuestion==null){
+            return result;
+        }
+        String praiseCountStr =  comQuestion.getPraisecount();
+        String treadCountStr = comQuestion.getTreadcount();
+        int praiseCount = 0;
+        int treadCount = 0;
+        if(!StringUtil.isEmpty(praiseCountStr) && !StringUtil.isEmpty(treadCountStr)){
+            praiseCount = Integer.parseInt(praiseCountStr);
+            treadCount = Integer.parseInt(treadCountStr);
+        }
+        HashMap hashMap = new HashMap();
+        hashMap.put("userId",userId);
+        hashMap.put("contentId",questionId);
+        hashMap.put("typeId",2);
+        try {
+            PraiseTread praiseTread = praiseTreadMapper.selectByTypeIdConId(hashMap);
+            PraiseTread praiseTreadIn = new PraiseTread();
+            praiseTreadIn.setUserid(userId);
+            praiseTreadIn.setContentid(questionId);
+            praiseTreadIn.setTypeid(2);
+            if(praiseTread == null) {
+                praiseTreadIn.setIstread(true);
+                treadCount += 1;
+                praiseTreadMapper.insert(praiseTreadIn);
+            }else {
+                if(praiseTread.getIstread() == null) {
+                    praiseTreadIn.setIstread(true);
+                    treadCount += 1;
+                    if(praiseTread.getIspraise() != null && praiseTread.getIspraise() == true){
+                        praiseTreadIn.setIspraise(false);
+                        praiseCount -= 1;
+                    }
+                } else{
+                    if(praiseTread.getIstread() == true){
+                        praiseTreadIn.setIstread(false);
+                        treadCount -= 1;
+                    }else{
+                        praiseTreadIn.setIstread(true);
+                        treadCount += 1;
+                        if(praiseTread.getIspraise() != null && praiseTread.getIspraise() == true){
+                            praiseTreadIn.setIspraise(false);
+                            praiseCount -= 1;
+                        }
+                    }
+                }
+                praiseTreadMapper.updatePraiseTread(praiseTreadIn);
+            }
+            comQuestion.setPraisecount(String.valueOf(praiseCount));
+            comQuestion.setTreadcount(String.valueOf(treadCount));
+            result = comQuestionMapper.updateByPrimaryKeySelective(comQuestion);
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+
+        }
+        return result;
     }
 
     /**
@@ -176,5 +296,59 @@ public class ComQuestionServicelmpl implements ComQuestionService {
             comQuestionImgId = communityImages.getId();
         }
         return comQuestionImgId;
+    }
+
+    public ViewDetailVo getComQuestionDetail(Integer userId, Integer questionId,Integer pageNum,Integer pageSize){
+        ComQuestion comQuestion = comQuestionMapper.selectByPrimaryKey(questionId);
+        ViewDetailVo detailVo = new ViewDetailVo();
+        detailVo.setTitle(comQuestion.getTitle());
+        detailVo.setContent(comQuestion.getContent());
+        detailVo.setPraiseCount(comQuestion.getPraisecount());
+        detailVo.setTreadCount(comQuestion.getTreadcount());
+        detailVo.setArticleId(comQuestion.getId());
+        detailVo.setCreateTime(comQuestion.getCreatetime());
+        UserInfo userInfo = userInfoMapper.selectByPrimaryKey(comQuestion.getUserid());
+        ViewDetailVo.setUserInfo(userInfo,detailVo);
+        HashMap hashMap = new HashMap();
+        hashMap.put("userId",userId);
+        hashMap.put("contentId",questionId);
+        PraiseTread praiseTread = praiseTreadMapper.selectByArticleId(hashMap);
+        PraiseTreadVo.detailPraiseTread(praiseTread,detailVo);
+        detailVo.setNickName(userInfo.getNickname());
+        detailVo.setHeadImageUrl(userInfo.getHeadimageurl());
+        Date createTimeDate = comQuestion.getCreatetime();
+        String timeAgo = StringUtil.getTimeAgoAsString(createTimeDate);
+        detailVo.setTimeAgo(timeAgo);
+        String topicName = getTopicNameById(comQuestion.getTopicid());
+        detailVo.setTopic(topicName);
+        List<CommunityImages> imagesList = communityImagesMapper.selectCommunityImageListByQueId(comQuestion.getId());
+        List<String> imageUrlList = new ArrayList<>();
+        for (int i=0;i<imagesList.size();i++) {
+            CommunityImages image = imagesList.get(i);
+            imageUrlList.add(Constants.serverUrl()+myConfig.getImagesComQuestionPath()+image.getFilename());
+        }
+        detailVo.setImageUrl(imageUrlList);
+
+        HashMap<String,Object> resultMap = new HashMap<>();
+        PageHelper.startPage(pageNum, pageSize);
+        List<ComAnswer> comAnswerList = comAnswerMapper.selectByComQuestionId(questionId);
+        PageInfo<ComAnswer> pageInfo = new PageInfo<>(comAnswerList);
+        resultMap.put("total",pageInfo.getTotal());
+        resultMap.put("list",pageInfo.getList());
+        detailVo.setAnswerMap(resultMap);
+        return detailVo;
+    }
+
+
+    private String getTopicNameById (Integer id) {
+        if("".equals(String.valueOf(id)) || "null".equals(String.valueOf(id))) {
+            return "";
+        }
+        String name = null;
+        ComQuestion topic = comQuestionMapper.selectByPrimaryKey(id);
+        if(topic!=null){
+            name = topic.getTitle();
+        }
+        return name;
     }
 }

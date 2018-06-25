@@ -10,10 +10,7 @@ import com.kc.demo.vo.Result;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -40,7 +37,7 @@ public class ComQuestionController {
      * @param topicid
      * @return
      */
-    @RequestMapping("/publish")
+    @RequestMapping(value = "/publish",method = RequestMethod.POST)
     public @ResponseBody
     Result PublishQuestion(@RequestParam(value = "userid", required = false) String userid,
                            @RequestParam(value = "title", required = false) String title,
@@ -81,7 +78,7 @@ public class ComQuestionController {
      * @return
      */
     @RequestMapping("/img/upload")
-    public @ResponseBody Result uploadImg(@RequestParam("imgFile") MultipartFile imgFile, @RequestParam("comQuestionId") Integer comQuestionId, HttpServletRequest request)  {
+    public @ResponseBody Result uploadImg(@RequestParam("imgFile") MultipartFile imgFile, @RequestParam("comquestionid") Integer comQuestionId, HttpServletRequest request)  {
         Result result = new Result();
         if (imgFile.isEmpty() || StringUtil.isEmpty(imgFile.getOriginalFilename())) {
             result.setStatusCode("500");
@@ -115,29 +112,18 @@ public class ComQuestionController {
         return result;
     }
 
-    /**
-     * 查看问题详情
-     * @param comQuestionId
-     * @return
-     */
-    @RequestMapping("/detail/view/{comQuestionId}")
-    public @ResponseBody
-    Result getComQuestionDetailView(@PathVariable(value = "comQuestionId") Integer comQuestionId){
-        Result result = new Result();
-        return result;
-    }
 
     @Resource
     private MyConfig myConfig;
     /**
      * 预览问题图片
-     * @param fileName
+     * @param filename
      * @return
      */
-    @RequestMapping(value="/images/{fileName}",produces = MediaType.IMAGE_PNG_VALUE)
+    @RequestMapping(value="/images/{filename}",produces = MediaType.IMAGE_PNG_VALUE)
     @ResponseBody
-    public ResponseEntity<?> getFile(@PathVariable String fileName) {
-        Callable<Object> task = new PreviewImageTask(fileName,myConfig.getImagesComQuestionPath());
+    public ResponseEntity<?> getFile(@PathVariable String filename) {
+        Callable<Object> task = new PreviewImageTask(filename,myConfig.getImagesComQuestionPath());
         Future<Object> taskResult = ThreadPoolUtil.submit(task);
         ResponseEntity<?> responseEntity = null;
         try {
@@ -155,11 +141,11 @@ public class ComQuestionController {
      * @param comQuestionTypeId
      * @return
      */
-    @RequestMapping(value = "/section/{comQuestionTypeId}")
+    @RequestMapping(value = "/section/{comquestiontypeid}")
     public @ResponseBody
     Result getArticleSectionList(@PathVariable(value = "comquestiontypeid", required = false) Integer comQuestionTypeId,
-                                 @RequestParam(value = "pageNum") Integer pageNum,
-                                 @RequestParam(value = "pageSize") Integer pageSize) {
+                                 @RequestParam(value = "pagenum") Integer pageNum,
+                                 @RequestParam(value = "pagesize") Integer pageSize) {
         Result result = new Result();
         Map<String,Object> data = null;
         try {
@@ -184,8 +170,8 @@ public class ComQuestionController {
     @RequestMapping("/search")
     public @ResponseBody
     Result searchByTitleKey(@RequestParam("comquestiontitle") String comQuestionTitle,
-                            @RequestParam(value = "pageNum") Integer pageNum,
-                            @RequestParam(value = "pageSize") Integer pageSize) {
+                            @RequestParam(value = "pagenum") Integer pageNum,
+                            @RequestParam(value = "pagesize") Integer pageSize) {
         Result result = new Result();
         Map<String,Object> data = null;
         try {
@@ -210,8 +196,8 @@ public class ComQuestionController {
     @RequestMapping("/topic/search")
     public @ResponseBody
     Result searchTopic(@RequestParam("topic") String topic,
-                       @RequestParam(value = "pageNum") Integer pageNum,
-                       @RequestParam(value = "pageSize") Integer pageSize) {
+                       @RequestParam(value = "pagenum") Integer pageNum,
+                       @RequestParam(value = "pagesize") Integer pageSize) {
         Result result = new Result();
         Map<String,Object> data = null;
         try {
@@ -226,4 +212,52 @@ public class ComQuestionController {
         result.setData(data);
         return result;
     }
+
+    /**
+     * 点赞问题
+     * @param userId
+     * @param comQuestionId
+     * @return
+     */
+    @RequestMapping("/praise")
+    public @ResponseBody
+    Result praiseComQuestion(@RequestParam(value = "userid") Integer userId,
+                         @RequestParam(value = "comquestionid") Integer comQuestionId) {
+        Result result = new Result();
+        try {
+            comQuestionService.praiseQuestion(userId,comQuestionId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setStatusCode("500");
+            result.setErrorMsg(e.getMessage());
+            return result;
+        }
+        result.setStatusCode("200");
+        return result;
+    }
+
+    /**
+     * 踩踏问题
+     *@param userId
+     *@param comQuestionId
+     * @return
+     */
+    @RequestMapping("/tread")
+    public @ResponseBody
+    Result threadComQuestion(@RequestParam(value = "userid") Integer userId,
+                         @RequestParam(value = "comquestionid") Integer comQuestionId) {
+        Result result = new Result();
+        try {
+            comQuestionService.treadQuestion(userId,comQuestionId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setStatusCode("500");
+            result.setErrorMsg(e.getMessage());
+            return result;
+        }
+        result.setStatusCode("200");
+        return result;
+    }
+
+
 }

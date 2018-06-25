@@ -11,6 +11,8 @@ public interface PraiseTreadMapper {
     /*根据评论id和用户id查找是否已点赞，点踩*/
     PraiseTread selectByCommentId(HashMap paramMap);
 
+    PraiseTread selectByTypeIdConId(HashMap paramMap);
+
     int insert(PraiseTread praiseTread);
 
     int updatePraiseTread(PraiseTread praiseTread);

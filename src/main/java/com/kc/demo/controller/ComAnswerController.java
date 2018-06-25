@@ -6,9 +6,7 @@ import com.kc.demo.service.ComAnswerService;
 import com.kc.demo.util.StringUtil;
 import com.kc.demo.vo.Result;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -22,7 +20,15 @@ public class ComAnswerController {
     @Resource
     private ComAnswerService comAnswerService;
 
-    @RequestMapping("/publish")
+    /**
+     * 写答案
+     * @param userid
+     * @param comquestionid
+     * @param title
+     * @param content
+     * @return
+     */
+    @RequestMapping(value = "/publish",method = RequestMethod.POST)
     public @ResponseBody
     Result publishComAnswer(@RequestParam(value = "userid", required = false) String userid,
                             @RequestParam(value = "comquestionid", required = false) String comquestionid,
@@ -55,14 +61,14 @@ public class ComAnswerController {
     }
 
     /**
-     * 上传问题图片
+     * 上传答案图片
      * @param imgFile
      * @param comAnswerId
      * @param request
      * @return
      */
     @RequestMapping("/img/upload")
-    public @ResponseBody Result uploadImg(@RequestParam("imgFile") MultipartFile imgFile, @RequestParam("comAnswerId") Integer comAnswerId, HttpServletRequest request)  {
+    public @ResponseBody Result uploadImg(@RequestParam("imgFile") MultipartFile imgFile, @RequestParam("comanswerid") Integer comAnswerId, HttpServletRequest request)  {
         Result result = new Result();
         if (imgFile.isEmpty() || StringUtil.isEmpty(imgFile.getOriginalFilename())) {
             result.setStatusCode("500");
@@ -93,6 +99,52 @@ public class ComAnswerController {
             result.setErrorMsg(e.getMessage());
             return result;
         }
+        return result;
+    }
+
+    /**
+     * 点赞答案
+     * @param userId
+     * @param comAnswerId
+     * @return
+     */
+    @RequestMapping("/praise")
+    public @ResponseBody
+    Result praiseComAnswer(@RequestParam(value = "userid") Integer userId,
+                         @RequestParam(value = "comanswerid") Integer comAnswerId) {
+        Result result = new Result();
+        try {
+            comAnswerService.praiseComAnswer(userId,comAnswerId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setStatusCode("500");
+            result.setErrorMsg(e.getMessage());
+            return result;
+        }
+        result.setStatusCode("200");
+        return result;
+    }
+
+    /**
+     * 踩踏答案
+     *@param userId
+     *@param comAnswerId
+     * @return
+     */
+    @RequestMapping("/tread")
+    public @ResponseBody
+    Result threadComAnswer(@RequestParam(value = "userid") Integer userId,
+                         @RequestParam(value = "comanswerid") Integer comAnswerId) {
+        Result result = new Result();
+        try {
+            comAnswerService.treadComAnswer(userId,comAnswerId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setStatusCode("500");
+            result.setErrorMsg(e.getMessage());
+            return result;
+        }
+        result.setStatusCode("200");
         return result;
     }
 

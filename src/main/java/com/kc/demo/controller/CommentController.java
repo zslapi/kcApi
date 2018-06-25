@@ -5,10 +5,7 @@ import com.kc.demo.service.CommentService;
 import com.kc.demo.util.StringUtil;
 import com.kc.demo.vo.Result;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -18,7 +15,7 @@ public class CommentController {
     @Resource
     private CommentService commentService;
 
-    @RequestMapping("/publish")
+    @RequestMapping(value = "/publish",method = RequestMethod.POST)
     public @ResponseBody Result publishComment (@RequestParam(value = "userid", required = false) String userid,
                            @RequestParam(value = "article", required = false) String article,
                            @RequestParam(value = "content", required = false) String content,
@@ -52,7 +49,7 @@ public class CommentController {
     }
 
     @RequestMapping("/praise")
-    public @ResponseBody Result praiseComment (@RequestParam("commentId") Integer commentId,@RequestParam("userId") Integer userId) {
+    public @ResponseBody Result praiseComment (@RequestParam("commentid") Integer commentId,@RequestParam("userid") Integer userId) {
         Result result = new Result();
         try {
             commentService.praiseComment(commentId,userId);
@@ -67,7 +64,7 @@ public class CommentController {
     }
 
     @RequestMapping("/tread")
-    public @ResponseBody Result threadComment (@RequestParam("commentId") Integer commentId,@RequestParam("userId") Integer userId) {
+    public @ResponseBody Result threadComment (@RequestParam("commentid") Integer commentId,@RequestParam("userid") Integer userId) {
         Result result = new Result();
         try {
             commentService.treadComment(commentId,userId);

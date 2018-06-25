@@ -1,12 +1,10 @@
 package com.kc.demo.service;
 
-import com.github.pagehelper.PageInfo;
 import com.kc.demo.model.Article;
-import com.kc.demo.vo.ArticleDetailVo;
+import com.kc.demo.vo.ViewDetailVo;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
-import java.util.List;
 import java.util.Map;
 
 public interface ArticleService {
@@ -26,5 +24,5 @@ public interface ArticleService {
 
     int addArticleImages(MultipartFile imgFile, Integer articleId) throws FileNotFoundException;
 
-    ArticleDetailVo getArticleDetail(Integer articleId);
+    ViewDetailVo getArticleDetail(Integer useId,Integer articleId);
 }

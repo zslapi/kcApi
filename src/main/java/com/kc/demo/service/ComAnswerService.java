@@ -1,6 +1,7 @@
 package com.kc.demo.service;
 
 import com.kc.demo.model.ComAnswer;
+import com.kc.demo.vo.ViewDetailVo;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
@@ -17,5 +18,6 @@ public interface ComAnswerService {
 
     int addComAnswerImages(MultipartFile imgFile, Integer comAnswerId) throws FileNotFoundException;
 
+    ViewDetailVo getComAnswerDetail(Integer userId, Integer comAnswerId);
 
 }

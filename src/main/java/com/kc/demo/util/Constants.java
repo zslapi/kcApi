@@ -14,5 +14,5 @@ public class Constants {
 
     public static String serverUrl() {return "https://api.paimeigd.com/";}
 
-    public static String articleImgFilePath() {return "/kcApi/upload/images/article/";}
+    public static String articleImgFilePath() {return "/upload/images/article/";}
 }

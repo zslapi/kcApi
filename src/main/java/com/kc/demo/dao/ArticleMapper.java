@@ -13,6 +13,8 @@ public interface ArticleMapper {
 
     Article selectByPrimaryKey(Integer id);
 
+    Article selectArticleDetailByPrimaryKey(Integer id);
+
     List<Article> selectByFilter(Article article);
 
     List<Article> selectByUserIds(List userIds);

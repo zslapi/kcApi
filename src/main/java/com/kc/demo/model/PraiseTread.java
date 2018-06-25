@@ -5,9 +5,9 @@ public class PraiseTread {
 
     private Integer userid;
 
-    private Integer articleid;
+    private Integer contentid;
 
-    private Integer commentid;
+    private Integer typeid;
 
     private Boolean ispraise;
 
@@ -21,13 +21,13 @@ public class PraiseTread {
 
     public void setUserid(Integer userid){ this.userid = userid; }
 
-    public Integer getArticleid(){ return this.articleid; }
+    public Integer getContentid(){ return this.contentid; }
 
-    public void setArticleid(Integer articleid){ this.articleid = articleid; }
+    public void setContentid(Integer contentid){ this.contentid = contentid; }
 
-    public Integer getCommentid(){ return this.commentid; }
+    public Integer getTypeid(){ return this.typeid; }
 
-    public void setCommentid(Integer commentid){ this.commentid = commentid; }
+    public void setTypeid(Integer typeid){ this.typeid = typeid; }
 
     public Boolean getIspraise() { return ispraise; }
 

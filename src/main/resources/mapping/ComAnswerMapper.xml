@@ -3,19 +3,30 @@
 <mapper namespace="com.kc.demo.dao.ComAnswerMapper" >
     <resultMap id="BaseResultMap" type="com.kc.demo.model.ComAnswer" >
         <id column="id" property="id" jdbcType="INTEGER" />
-        <result column="comQuestionId" property="comquestionid" jdbcType="INTEGER" />
-        <result column="userId" property="userid" jdbcType="INTEGER" />
-        <result column="title" property="Title" jdbcType="VARCHAR" />
+        <result column="title" property="title" jdbcType="VARCHAR" />
         <result column="content" property="content" jdbcType="VARCHAR" />
-        <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
-        <result column="questionStatus" property="questionstatus" jdbcType="INTEGER" />
+        <result column="userId" property="userid" jdbcType="INTEGER" />
         <result column="questionTypeId" property="questiontypeid" jdbcType="INTEGER" />
+        <result column="questionStatus" property="questionstatus" jdbcType="INTEGER" />
         <result column="ip" property="ip" jdbcType="VARCHAR" />
         <result column="location" property="location" jdbcType="VARCHAR" />
         <result column="collectionedCounts" property="collectionedcounts" jdbcType="INTEGER" />
-        <result column="praiseCount" property="praisecount" jdbcType="DECIMAL" />
-        <result column="treadCount" property="treadcount" jdbcType="DECIMAL" />
+        <result column="praiseCount" property="praisecount" jdbcType="VARCHAR" />
+        <result column="treadCount" property="treadcount" jdbcType="VARCHAR" />
+        <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
         <result column="topicId" property="topicid" jdbcType="INTEGER" />
+        <result column="comQuestionId" property="comquestionid" jdbcType="INTEGER" />
+    </resultMap>
+    <resultMap id="ResultMapForFollowAnswer" type="com.kc.demo.model.ComAnswer" >
+        <result column="id" property="id" jdbcType="INTEGER" />
+        <result column="title" property="title" jdbcType="VARCHAR" />
+        <result column="content" property="content" jdbcType="LONGVARCHAR" />
+        <result column="userNickName" property="usernickname" jdbcType="VARCHAR" />
+        <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
+        <result column="userHeadImageUrl" property="userheadimageurl" jdbcType="VARCHAR"/>
+        <result column="questionId" property="questionid" jdbcType="INTEGER" />
+        <result column="questionTitle" property="questiontitle" jdbcType="VARCHAR"/>
+        <result column="questionContent" property="questioncontent" jdbcType="VARCHAR"/>
     </resultMap>
     <sql id="Base_Column_List" >
     id, comQuestionId, userId, title, content, createTime, ip, location,
@@ -40,11 +51,44 @@
     from tb_community_answer
     where id = #{id,jdbcType=INTEGER}
     </select>
-    <select id="selectByComQuestionId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-        select userId,
-      content, title,createTime,
-      location, praiseCount, treadCount,
-       from tb_community_answer where comQuestionId = #{comquestionid,jdbcType=INTEGER}
+    <select id="selectPraiseTreadCount" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+        select
+        id,userId,praiseCount,treadCount
+        from tb_community_answer
+        where id = #{id,jdbcType=INTEGER}
+        for update
+   </select>
+    <select id="selectByComQuestionId" resultMap="ResultMapForFollowAnswer" parameterType="java.lang.Integer" >
+      select a.userId userId,
+       a.content content,
+       a.title title,
+       a.createTime createTime,
+       a.location location,
+       a.praiseCount praiseCount,
+       a.treadCount treadCount,
+       b.id questionId,
+       b.title questionTitle,
+       b.content questionContent,
+       c.nickName userNickName,
+       c.headImageUrl userHeadImageUrl
+       from tb_community_answer a left join tb_community_question b on a.comQuestionId = b.id
+       left join tb_user_info c on a.userId = c.id
+       where a.comQuestionId = #{comquestionid,jdbcType=INTEGER}
+    </select>
+    <select id="selectByComAnswerId" resultMap="ResultMapForFollowAnswer" parameterType="java.lang.Integer" >
+      select a.userId userId,
+       a.content content,
+       a.title title,
+       a.createTime createTime,
+       a.location location,
+       a.praiseCount praiseCount,
+       a.treadCount treadCount,
+       b.id questionId,
+       b.title questionTitle,
+       b.content questionContent
+       from tb_community_answer a left join tb_community_question b
+       on a.comQuestionId = b.id
+       where a.id = #{id,jdbcType=INTEGER}
     </select>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from tb_community_answer
@@ -103,8 +147,8 @@
             <if test="treadcount != null" >
                 treadCount,
             </if>
-            <if test="topicId != null" >
-                topicid,
+            <if test="topicid != null" >
+                topicId,
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides="," >
@@ -136,7 +180,7 @@
                 #{questionstatus,jdbcType=VARCHAR},
             </if>
             <if test="questiontypeid != null">
-                #{questiontypeId,jdbcType=DECIMAL},
+                #{questiontypeid,jdbcType=DECIMAL},
             </if>
             <if test="collectionedcounts != null">
                 #{collectionedcounts,jdbcType=INTEGER},
@@ -147,28 +191,28 @@
             <if test="treadcount != null" >
                 #{treadcount,jdbcType=DECIMAL},
             </if>
-            <if test="topicId != null" >
-                #{topicId,jdbcType=INTEGER}
+            <if test="topicid != null" >
+                #{topicid,jdbcType=INTEGER}
             </if>
         </trim>
     </insert>
     <update id="updateByPrimaryKeySelective" parameterType="com.kc.demo.model.ComAnswer" >
         update tb_community_answer
         <set >
-            <if test="comquestionid != null" >
-                comQuestionId = #{comquestionid,jdbcType=INTEGER},
-            </if>
-            <if test="userid != null" >
-                userId = #{userid,jdbcType=INTEGER},
+            <if test="title != null">
+                title = #{title,jdbcType=VARCHAR},
             </if>
             <if test="content != null" >
                 content = #{content,jdbcType=VARCHAR},
             </if>
-            <if test="createtime != null" >
-                createTime = #{createtime,jdbcType=TIMESTAMP},
+            <if test="userid != null" >
+                userId = #{userid,jdbcType=INTEGER},
             </if>
-            <if test="status != null" >
-                status = #{status,jdbcType=INTEGER},
+            <if test="questiontypeid != null" >
+                questionTypeId = #{questiontypeid,jdbcType=INTEGER},
+            </if>
+            <if test="questionstatus != null" >
+                questionStatus = #{questionstatus,jdbcType=INTEGER},
             </if>
             <if test="ip != null" >
                 ip = #{ip,jdbcType=VARCHAR},
@@ -176,20 +220,25 @@
             <if test="location != null" >
                 location = #{location,jdbcType=VARCHAR},
             </if>
-            <if test="praiseuserids != null" >
-                praiseUserIds = #{praiseuserids,jdbcType=VARCHAR},
+            <if test="collectionedcounts != null" >
+                collectionedCounts = #{collectionedcounts,jdbcType=INTEGER},
             </if>
             <if test="praisecount != null" >
                 praiseCount = #{praisecount,jdbcType=DECIMAL},
             </if>
-            <if test="treaduserids != null" >
-                treadUserIds = #{treaduserids,jdbcType=VARCHAR},
-            </if>
             <if test="treadcount != null" >
                 treadCount = #{treadcount,jdbcType=DECIMAL},
             </if>
-            <if test="parentid != null" >
-                parentId = #{parentid,jdbcType=INTEGER},
+            <if test="createtime != null" >
+                createTime = #{createtime,jdbcType=TIMESTAMP},
+            </if>
+
+
+            <if test="topicId != null" >
+                parentId = #{topicid,jdbcType=INTEGER},
+            </if>
+            <if test="comquestionid != null" >
+                comQuestionId = #{comquestionid,jdbcType=INTEGER},
             </if>
         </set>
         where id = #{id,jdbcType=INTEGER}

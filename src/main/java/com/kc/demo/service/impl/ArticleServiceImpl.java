@@ -3,20 +3,15 @@ package com.kc.demo.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.kc.demo.config.MyConfig;
-import com.kc.demo.dao.ArticleImagesMapper;
-import com.kc.demo.dao.ArticleMapper;
-import com.kc.demo.dao.PraiseTreadMapper;
-import com.kc.demo.dao.UserFollowMapper;
+import com.kc.demo.dao.*;
 import com.kc.demo.jobs.SaveImagesTask;
-import com.kc.demo.model.Article;
-import com.kc.demo.model.ArticleImages;
-import com.kc.demo.model.PraiseTread;
-import com.kc.demo.model.UserFollow;
+import com.kc.demo.model.*;
 import com.kc.demo.service.ArticleService;
 import com.kc.demo.util.Constants;
 import com.kc.demo.util.StringUtil;
 import com.kc.demo.util.ThreadPoolUtil;
-import com.kc.demo.vo.ArticleDetailVo;
+import com.kc.demo.vo.PraiseTreadVo;
+import com.kc.demo.vo.ViewDetailVo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -46,6 +41,9 @@ public class ArticleServiceImpl implements ArticleService {
     private PraiseTreadMapper praiseTreadMapper;
 
     @Resource
+    private UserInfoMapper userInfoMapper;
+
+    @Resource
     private MyConfig myConfig;
 
     @Override
@@ -66,7 +64,7 @@ public class ArticleServiceImpl implements ArticleService {
         Map<String,Object> resultMap = new HashMap<>();
         PageHelper.startPage(pageNum, pageSize);
         List<Article> articleList = articleMapper.selectListByArticleTypeId(articleTypeId);
-        addTimeAgoInList(articleList);
+        addRemainFieldInList(articleList);
         PageInfo<Article> pageInfo = new PageInfo<>(articleList);
         resultMap.put("total",pageInfo.getTotal());
         resultMap.put("list",pageInfo.getList());
@@ -83,21 +81,19 @@ public class ArticleServiceImpl implements ArticleService {
         }
         PageHelper.startPage(pageNum, pageSize);
         List<Article> articles = articleMapper.selectByUserIds(userIds);
-        addTimeAgoInList(articles);
+        addRemainFieldInList(articles);
         PageInfo<Article> pageInfo = new PageInfo<>(articles);
         resultMap.put("total",pageInfo.getTotal());
         resultMap.put("list",pageInfo.getList());
         return resultMap;
     }
 
-    /**
-     * 在文章列表中增加timeAgo字段
-     * @param articleList
-     */
-    private void addTimeAgoInList(List<Article> articleList) {
+
+    private void addRemainFieldInList(List<Article> articleList) {
         for (Article article:articleList) {
             Date createTimeDate = article.getCreatetime();
             String timeAgo = StringUtil.getTimeAgoAsString(createTimeDate);
+            article.setContentid(0);
             article.setTimeAgo(timeAgo);
         }
     }
@@ -109,6 +105,7 @@ public class ArticleServiceImpl implements ArticleService {
         article.setTitle(titleKey);
         PageHelper.startPage(pageNum, pageSize);
         List<Article> articleList = articleMapper.selectByFilter(article);
+        addRemainFieldInList(articleList);
         PageInfo<Article> pageInfo = new PageInfo<>(articleList);
         resultMap.put("total",pageInfo.getTotal());
         resultMap.put("list",pageInfo.getList());
@@ -123,6 +120,7 @@ public class ArticleServiceImpl implements ArticleService {
         article.setArticletypeid(2);
         PageHelper.startPage(pageNum, pageSize);
         List<Article> articleList = articleMapper.selectByFilter(article);
+        addRemainFieldInList(articleList);
         PageInfo<Article> pageInfo = new PageInfo<>(articleList);
         resultMap.put("total",pageInfo.getTotal());
         resultMap.put("list",pageInfo.getList());
@@ -147,12 +145,14 @@ public class ArticleServiceImpl implements ArticleService {
         }
         HashMap hashMap = new HashMap();
         hashMap.put("userId",userId);
-        hashMap.put("articleId",articleId);
+        hashMap.put("contentId",articleId);
+        hashMap.put("typeId",0);
         try {
-            PraiseTread praiseTread = praiseTreadMapper.selectByArticleId(hashMap);
+            PraiseTread praiseTread = praiseTreadMapper.selectByTypeIdConId(hashMap);
             PraiseTread praiseTreadIn = new PraiseTread();
             praiseTreadIn.setUserid(userId);
-            praiseTreadIn.setArticleid(articleId);
+            praiseTreadIn.setContentid(articleId);
+            praiseTreadIn.setTypeid(0);
             if(praiseTread == null) {
                 praiseTreadIn.setIspraise(true);
                 praiseCount += 1;
@@ -209,12 +209,14 @@ public class ArticleServiceImpl implements ArticleService {
         }
         HashMap hashMap = new HashMap();
         hashMap.put("userId",userId);
-        hashMap.put("articleId",articleId);
+        hashMap.put("contentId",articleId);
+        hashMap.put("typeId",0);
         try {
-            PraiseTread praiseTread = praiseTreadMapper.selectByArticleId(hashMap);
+            PraiseTread praiseTread = praiseTreadMapper.selectByTypeIdConId(hashMap);
             PraiseTread praiseTreadIn = new PraiseTread();
             praiseTreadIn.setUserid(userId);
-            praiseTreadIn.setArticleid(articleId);
+            praiseTreadIn.setContentid(articleId);
+            praiseTreadIn.setTypeid(0);
             if(praiseTread == null) {
                 praiseTreadIn.setIstread(true);
                 treadCount += 1;
@@ -281,15 +283,23 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ArticleDetailVo getArticleDetail(Integer articleId) {
+    public ViewDetailVo getArticleDetail(Integer userId,Integer articleId) {
         logger.info("测试一下：文章详情");
         Article article = articleMapper.selectByPrimaryKey(articleId);
-        ArticleDetailVo detailVo = new ArticleDetailVo();
+        ViewDetailVo detailVo = new ViewDetailVo();
         detailVo.setTitle(article.getTitle());
         detailVo.setContent(article.getContent());
         detailVo.setPraiseCount(article.getPraisecount());
         detailVo.setTreadCount(article.getTreadcount());
         detailVo.setArticleId(article.getId());
+        detailVo.setCreateTime(article.getCreatetime());
+        UserInfo userInfo = userInfoMapper.selectByPrimaryKey(article.getUserid());
+        ViewDetailVo.setUserInfo(userInfo,detailVo);
+        HashMap hashMap = new HashMap();
+        hashMap.put("userId",userId);
+        hashMap.put("contentId",articleId);
+        PraiseTread praiseTread = praiseTreadMapper.selectByArticleId(hashMap);
+        PraiseTreadVo.detailPraiseTread(praiseTread,detailVo);
         Date createTimeDate = article.getCreatetime();
         String timeAgo = StringUtil.getTimeAgoAsString(createTimeDate);
         detailVo.setTimeAgo(timeAgo);
@@ -299,10 +309,11 @@ public class ArticleServiceImpl implements ArticleService {
         List<String> imageUrlList = new ArrayList<>();
         for (int i=0;i<imagesList.size();i++) {
             ArticleImages image = imagesList.get(i);
-            imageUrlList.add(Constants.serverUrl()+"article/images/"+image.getFilename());
+            imageUrlList.add(Constants.serverUrl()+myConfig.getImagesArticlePath()+image.getFilename());
         }
         detailVo.setImageUrl(imageUrlList);
         return detailVo;
+//        return getDetailVo(userId,articleId);
     }
 
 
@@ -310,10 +321,11 @@ public class ArticleServiceImpl implements ArticleService {
         if("".equals(String.valueOf(id)) || "null".equals(String.valueOf(id))) {
             return "";
         }
+        String name = null;
         Article topic = articleMapper.selectByPrimaryKey(id);
-        String name = topic.getTitle();
+        if(topic != null){
+          name = topic.getTitle();
+        }
         return name;
     }
-
-
 }

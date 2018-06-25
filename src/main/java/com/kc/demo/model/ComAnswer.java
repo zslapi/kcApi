@@ -26,11 +26,21 @@ public class ComAnswer {
 
     private String location;
 
-    private BigDecimal praisecount;
+    private String praisecount;
 
-    private BigDecimal treadcount;
+    private String treadcount;
 
     private Integer collectionedcounts;
+
+    private String usernickname;
+
+    private String userheadimageurl;
+
+    private Integer questionid;
+
+    private String questiontitle;
+
+    private String questioncontent;
 
 
     public Integer getId() {
@@ -77,11 +87,11 @@ public class ComAnswer {
         this.createtime = createtime;
     }
 
-    public Integer getQuestiontypeid() {
+    public Integer getQuestionTypeid() {
         return questiontypeid;
     }
 
-    public void setQuestiontypeid(Integer questiontypeid) {
+    public void setQuestionTypeid(Integer questiontypeid) {
         this.questiontypeid = questiontypeid;
     }
 
@@ -109,27 +119,27 @@ public class ComAnswer {
         this.questionstatus = questionstatus;
     }
 
-    public BigDecimal getPraisecount() {
+    public String getPraisecount() {
         return praisecount;
     }
 
-    public void setPraisecount(BigDecimal praisecount) {
+    public void setPraisecount(String praisecount) {
         this.praisecount = praisecount;
     }
 
-    public Integer getTopicid() {
+    public Integer getTopicId() {
         return topicid;
     }
 
-    public void setTopicid(Integer topicid) {
+    public void setTopicId(Integer topicid) {
         this.topicid = topicid;
     }
 
-    public BigDecimal getTreadcount() {
+    public String getTreadcount() {
         return treadcount;
     }
 
-    public void setTreadcount(BigDecimal treadcount) {
+    public void setTreadcount(String treadcount) {
         this.treadcount = treadcount;
     }
 
@@ -140,4 +150,50 @@ public class ComAnswer {
     public void setCollectionedcounts(Integer collectionedcounts) {
         this.collectionedcounts = collectionedcounts;
     }
+
+    public String getUserNickName(){return  usernickname;}
+
+    public void setUserNickName(String userNickName){this.usernickname = userNickName;}
+
+    public String getUserHeadImageUrl(){return userheadimageurl;}
+
+    public void setUserHeadImageUrl(String userHeadImageUrl){this.userheadimageurl = userHeadImageUrl;}
+
+    public String getQuestionContent() {
+        return questioncontent;
+    }
+
+    public void setQuestionContent(String questionContent) {
+        this.questioncontent = questionContent;
+    }
+
+    public String getQuestionTitle() {
+        return questiontitle;
+    }
+    public void setQuestionTitle(String questionTitle) {
+        this.questiontitle = questionTitle;
+    }
+    public void setQuestionId(Integer questionId) {
+        this.questionid = questionId;
+    }
+
+    public Integer getQuestionId() {
+        return questionid;
+    }
+
+    public Integer getQuestiontypeid() {
+        return questiontypeid;
+    }
+
+    public void setQuestiontypeid(Integer questiontypeid) {
+        this.questiontypeid = questiontypeid;
+    }
+    public Integer getTopicid() {
+        return topicid;
+    }
+
+    public void setTopicid(Integer topicid) {
+        this.topicid = topicid;
+    }
+
 }

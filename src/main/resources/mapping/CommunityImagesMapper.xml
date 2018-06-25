@@ -39,9 +39,7 @@
     where id = #{id,jdbcType=INTEGER}
   </delete>
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.kc.demo.model.CommunityImages" >
-    insert into tb_community_images (id, originalName, fileName,
-      imgType, comQuestionId, comAnswerId, createTime,
-      filePath)
+    insert into tb_community_images (id, originalName, fileName,imgType, comQuestionId, comAnswerId, createTime,filePath)
     values (#{id,jdbcType=INTEGER}, #{originalname,jdbcType=VARCHAR}, #{filename,jdbcType=VARCHAR},
       #{imgtype,jdbcType=VARCHAR}, #{comquestionid,jdbcType=INTEGER}, #{comanswerid,jdbcType=INTEGER},now(),
       #{filepath,jdbcType=VARCHAR})

@@ -4,6 +4,7 @@
     <resultMap id="BaseResultMap" type="com.kc.demo.model.ComQuestion">
         <id column="id" property="id" jdbcType="INTEGER" />
         <result column="title" property="title" jdbcType="VARCHAR" />
+        <result column="content" property="content" jdbcType="VARCHAR" />
         <result column="userId" property="userid" jdbcType="INTEGER" />
         <result column="questionTypeId" property="questiontypeid" jdbcType="INTEGER" />
         <result column="questionStatus" property="questionstatus" jdbcType="INTEGER" />
@@ -16,7 +17,7 @@
         <result column="topicId" property="topicid" jdbcType="INTEGER" />
     </resultMap>
     <sql id="Base_Column_List" >
-    id, title, userId, questionTypeId, questionStatus, ip, location, collectionedCounts,
+    id, title, content, userId, questionTypeId, questionStatus, ip, location, collectionedCounts,
     praiseCount, treadCount, createTime,topicId
     </sql>
     <sql id="Blob_Column_List" >

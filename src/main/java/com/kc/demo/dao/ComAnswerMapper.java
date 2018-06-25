@@ -21,7 +21,11 @@ public interface ComAnswerMapper {
 
     int updateByPrimaryKey(ComAnswer record);
 
-    ComAnswer selectPraiseCount(Integer commentId);
+    ComAnswer selectPraiseCount(Integer comAnswerId);
 
-    ComAnswer selectTreadCount(Integer commentId);
+    ComAnswer selectTreadCount(Integer comAnswerId);
+
+    ComAnswer selectPraiseTreadCount(Integer comAnswerId);
+
+    ComAnswer selectByComAnswerId(Integer comAnswerId);
 }
