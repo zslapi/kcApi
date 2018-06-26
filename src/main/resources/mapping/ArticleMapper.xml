@@ -13,7 +13,7 @@
     <result column="praiseCount" property="praisecount" jdbcType="VARCHAR" />
     <result column="treadCount" property="treadcount" jdbcType="VARCHAR" />
     <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
-    <result column="topicId" property="topicid" jdbcType="INTEGER" />
+    <result column="topicId" property="topicid" jdbcType="VARCHAR" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.kc.demo.model.Article" extends="BaseResultMap" >
     <result column="content" property="content" jdbcType="LONGVARCHAR" />

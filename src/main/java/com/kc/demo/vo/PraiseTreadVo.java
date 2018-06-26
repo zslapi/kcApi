@@ -44,9 +44,9 @@ public class PraiseTreadVo {
                 detailVo.setIspraise(praiseTread.getIspraise());
             }
             if(praiseTread.getIstread()==null){
-                detailVo.setIsTread(false);
+                detailVo.setIstread(false);
             }else {
-                detailVo.setIsTread(praiseTread.getIstread());
+                detailVo.setIstread(praiseTread.getIstread());
             }
             if(praiseTread.getIscollection()==null){
                 detailVo.setIscollection(false);
@@ -55,8 +55,9 @@ public class PraiseTreadVo {
             }
         }else {
             detailVo.setIspraise(false);
-            detailVo.setIsTread(false);
+            detailVo.setIstread(false);
             detailVo.setIscollection(false);
         }
     }
+
 }

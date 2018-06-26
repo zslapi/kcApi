@@ -16,15 +16,23 @@
         <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
         <result column="topicId" property="topicid" jdbcType="INTEGER" />
     </resultMap>
+    <resultMap id="ResultMapForFollowQuestion" type="com.kc.demo.model.ComQuestion" >
+        <result column="id" property="id" jdbcType="INTEGER" />
+        <result column="title" property="title" jdbcType="VARCHAR" />
+        <result column="content" property="content" jdbcType="LONGVARCHAR" />
+        <result column="nickName" property="nickname" jdbcType="VARCHAR" />
+        <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
+        <result column="headImageUrl" property="headimageurl" jdbcType="VARCHAR"/>
+        <result column="questionId" property="questionid" jdbcType="INTEGER" />
+        <result column="questionTitle" property="questiontitle" jdbcType="VARCHAR"/>
+        <result column="questionContent" property="questioncontent" jdbcType="VARCHAR"/>
+    </resultMap>
     <sql id="Base_Column_List" >
     id, title, content, userId, questionTypeId, questionStatus, ip, location, collectionedCounts,
     praiseCount, treadCount, createTime,topicId
     </sql>
     <sql id="Blob_Column_List" >
     content
-    </sql>
-    <sql id="Other_Column_List" >
-    userNickName
     </sql>
     <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
         select
@@ -53,7 +61,7 @@
         </where>
         ORDER BY createTime DESC
     </select>
-    <select id="selectListByQuestionTypeId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+    <select id="selectListByQuestionTypeId" resultMap="ResultMapForFollowQuestion" parameterType="java.lang.Integer">
     select
     a.id id,
     a.title title,
@@ -61,7 +69,8 @@
     a.createTime createTime,
     a.praiseCount praiseCount,
     a.treadCount treadCount,
-    u.nickName userNickName
+    u.nickName nickName,
+    u.headImageUrl headImageUrl
     from tb_community_question a
     left join tb_user_info u
     on a.userId = u.id
@@ -90,7 +99,7 @@
     </select>
     <select id="selectPraiseTreadCount" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
         select
-        id,userId,praiseCount,treadCount
+        id,userId,praiseCount,treadCount,collectionedCounts
         from tb_community_question
         where id = #{id,jdbcType=INTEGER}
         for update

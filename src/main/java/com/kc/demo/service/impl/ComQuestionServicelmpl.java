@@ -118,7 +118,7 @@ public class ComQuestionServicelmpl implements ComQuestionService {
     public Map<String,Object> getQuestionListByTopic (String topic,Integer pageNum,Integer pageSize) {
         Map<String,Object> resultMap = new HashMap<>();
         ComQuestion comQuestion = new ComQuestion();
-        comQuestion.setTopicid(2);
+        comQuestion.setTopicid("2");
         PageHelper.startPage(pageNum, pageSize);
         List<ComQuestion> comQuestionList = comQuestionMapper.selectByFilter(comQuestion);
         addTimeAgoInList(comQuestionList);
@@ -195,6 +195,55 @@ public class ComQuestionServicelmpl implements ComQuestionService {
         }catch (Exception e){
             e.printStackTrace();
         }finally {
+        }
+        return result;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {RuntimeException.class,Exception.class})
+    public int collectionQuestion(Integer userId,Integer questionId){
+        int result = 0;
+        ComQuestion comQuestion = comQuestionMapper.selectPraiseTreadCount(questionId);
+        if(comQuestion==null){
+            return result;
+        }
+        Integer collectionCounts =  comQuestion.getCollectionedcounts();
+        if(collectionCounts == null){
+            collectionCounts = 0;
+        }
+        HashMap hashMap = new HashMap();
+        hashMap.put("userId",userId);
+        hashMap.put("contentId",questionId);
+        hashMap.put("typeId",1);
+        try {
+            PraiseTread praiseTread = praiseTreadMapper.selectByTypeIdConId(hashMap);
+            PraiseTread praiseTreadIn = new PraiseTread();
+            praiseTreadIn.setUserid(userId);
+            praiseTreadIn.setContentid(questionId);
+            praiseTreadIn.setTypeid(1);
+            if(praiseTread == null){
+                praiseTreadIn.setIscollection(true);
+                collectionCounts += 1;
+                praiseTreadMapper.insert(praiseTreadIn);
+            }else {
+                if(praiseTread.getIscollection() == null)
+                {
+                    praiseTreadIn.setIscollection(true);
+                    collectionCounts += 1;
+                }else if(praiseTread.getIscollection()==false){
+                    praiseTreadIn.setIscollection(true);
+                    collectionCounts += 1;
+                }else if(praiseTread.getIscollection()==true){
+                    praiseTreadIn.setIscollection(false);
+                    collectionCounts -= 1;
+                }
+                praiseTreadMapper.updatePraiseTread(praiseTreadIn);
+            }
+            comQuestion.setCollectionedcounts(collectionCounts);
+            result = comQuestionMapper.updateByPrimaryKeySelective(comQuestion);
+
+        }catch (Exception e){
+            e.printStackTrace();
         }
         return result;
     }
@@ -306,8 +355,8 @@ public class ComQuestionServicelmpl implements ComQuestionService {
         ViewDetailVo detailVo = new ViewDetailVo();
         detailVo.setTitle(comQuestion.getTitle());
         detailVo.setContent(comQuestion.getContent());
-        detailVo.setPraiseCount(comQuestion.getPraisecount());
-        detailVo.setTreadCount(comQuestion.getTreadcount());
+        detailVo.setPraisecount(comQuestion.getPraisecount());
+        detailVo.setTreadcount(comQuestion.getTreadcount());
         detailVo.setComQuestionId(comQuestion.getId());
         detailVo.setCreateTime(comQuestion.getCreatetime());
         UserInfo userInfo = userInfoMapper.selectByPrimaryKey(comQuestion.getUserid());
@@ -349,18 +398,37 @@ public class ComQuestionServicelmpl implements ComQuestionService {
         return detailVo;
     }
 
-
-    private String getTopicNameById (Integer id) {
-        if("".equals(String.valueOf(id)) || "null".equals(String.valueOf(id))) {
+    private String getTopicNameById (String  topicStr) {
+        if("".equals(String.valueOf(topicStr)) || "null".equals(String.valueOf(topicStr))) {
             return "";
         }
-        String name = null;
-        ComQuestion topic = comQuestionMapper.selectByPrimaryKey(id);
-        if(topic!=null){
-            name = topic.getTitle();
+        String name = "";
+        String[] topicArr= topicStr.split(",");
+        for(String str : topicArr)
+        {
+            ComQuestion topic = comQuestionMapper.selectByPrimaryKey(Integer.parseInt(str));
+            if(topic != null){
+                if(name == ""){
+                    name = topic.getTitle();
+                }else {
+                    name = name + "," + topic.getTitle();
+                }
+            }
         }
         return name;
     }
+
+//    private String getTopicNameById (Integer id) {
+//        if("".equals(String.valueOf(id)) || "null".equals(String.valueOf(id))) {
+//            return "";
+//        }
+//        String name = null;
+//        ComQuestion topic = comQuestionMapper.selectByPrimaryKey(id);
+//        if(topic!=null){
+//            name = topic.getTitle();
+//        }
+//        return name;
+//    }
 
     private ViewDetailVo getAnswertDetail(Integer userId, Integer comAnswerId){
         ComAnswer comAnswer = comAnswerMapper.selectByComAnswerId(comAnswerId);
@@ -370,8 +438,8 @@ public class ComQuestionServicelmpl implements ComQuestionService {
         }
         detailVo.setTitle(comAnswer.getTitle());
         detailVo.setContent(comAnswer.getContent());
-        detailVo.setPraiseCount(comAnswer.getPraisecount());
-        detailVo.setTreadCount(comAnswer.getTreadcount());
+        detailVo.setPraisecount(comAnswer.getPraisecount());
+        detailVo.setTreadcount(comAnswer.getTreadcount());
         detailVo.setComAnswerId(comAnswerId);
         detailVo.setCreateTime(comAnswer.getCreatetime());
         detailVo.setComQuestionId(comAnswer.getQuestionId());

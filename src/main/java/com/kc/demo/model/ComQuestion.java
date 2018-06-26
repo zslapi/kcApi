@@ -31,9 +31,13 @@ public class ComQuestion {
 
     private String treadcount;
 
+    private String nickname;
+
+    private String headimageurl;
+
     private Date createtime;
 
-    private Integer topicid;
+    private String topicid;
 
     private String timeAgo;
 
@@ -133,9 +137,9 @@ public class ComQuestion {
         this.createtime = createtime;
     }
 
-    public Integer getTopicid() {return topicid;}
+    public String getTopicid() {return topicid;}
 
-    public void setTopicid(Integer topicid) {this.topicid = topicid;}
+    public void setTopicid(String topicid) {this.topicid = topicid;}
 
     public String getTimeAgo() {return timeAgo;}
 
@@ -148,4 +152,12 @@ public class ComQuestion {
     public void setTypeid(Integer typeid) {
         this.typeid = typeid;
     }
+
+    public String getNickname(){return  nickname;}
+
+    public void setNickname(String nickname){this.nickname = nickname;}
+
+    public String getHeadimageurl(){return headimageurl;}
+
+    public void setHeadimageurl(String headimageurl){this.headimageurl = headimageurl;}
 }

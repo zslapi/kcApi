@@ -20,6 +20,8 @@ public interface ComQuestionService {
 
     int treadQuestion(Integer userId, Integer questionId);
 
+    int collectionQuestion(Integer userId,Integer questionId);
+
     int addQuestionImages(MultipartFile imgFile, Integer questionId) throws FileNotFoundException;
 
     ViewDetailVo getComQuestionDetail(Integer userId, Integer questionId,Integer pageNum,Integer pageSize);

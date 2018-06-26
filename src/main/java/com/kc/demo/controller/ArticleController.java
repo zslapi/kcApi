@@ -61,7 +61,7 @@ public class ArticleController {
                           @RequestParam(value = "title", required = false) String title,
                           @RequestParam(value = "content", required = false) String content,
                           @RequestParam(value = "articletype", required = false) String articletype,
-                          @RequestParam(value = "topicid", required = false) Integer topicid) {
+                          @RequestParam(value = "topicid", required = false) String topicid) {
         Result result = new Result();
         if (StringUtil.isEmpty(userid) || StringUtil.isEmpty(content) || StringUtil.isEmpty(articletype)) {
             result.setStatusCode("1001");
@@ -230,20 +230,16 @@ public class ArticleController {
                        @RequestParam(value = "pagenum") Integer pageNum,
                        @RequestParam(value = "pagesize") Integer pageSize) {
         Result result = new Result();
-        Map<String,Object> data = null;
+        Map<String,Object> data = new HashMap<>();
         Map<String ,Object> topicData = null;
         List<Object> topicsList = new ArrayList<>();
-        long topicsTotal=0;
-        String[] topicArr= topic.split(",");
         try {
-            for(String topicstr : topicArr)
-            {
-                topicData = articleService.getArticleListByTopic(topic,pageNum,pageSize);
-                List<Object> listArticle =(List<Object>) topicData.get("list");
-                long listTotal = (Long)topicData.get("total");
-                topicsList.addAll(listArticle);
-                topicsTotal=topicsTotal+ listTotal;
-            }
+            long topicsTotal=0;
+            topicData = articleService.getArticleListByTopic(topic,pageNum,pageSize);
+            List<Object> listArticle =(List<Object>) topicData.get("list");
+            long listTotal = (Long)topicData.get("total");
+            topicsList.addAll(listArticle);
+            topicsTotal=topicsTotal+ listTotal;
             data.put("total",topicsTotal);
             data.put("list",topicsList);
 
@@ -310,7 +306,7 @@ public class ArticleController {
      * @param articleId
      * @return
      */
-    @RequestMapping("/tread")
+    @RequestMapping("/collection")
     public @ResponseBody
     Result collectionArticle(@RequestParam(value = "userid") Integer userId,
                          @RequestParam(value = "articleid") Integer articleId) {

@@ -197,6 +197,55 @@ public class ComAnswerServiceImpl implements ComAnswerService {
         return result;
     }
 
+    @Override
+    @Transactional(rollbackFor = {RuntimeException.class,Exception.class})
+    public int collectionComAnswer(Integer userId,Integer comAnswerId){
+        int result = 0;
+        ComAnswer comAnswer = comAnswerMapper.selectPraiseTreadCount(comAnswerId);
+        if(comAnswer==null){
+            return result;
+        }
+        Integer collectionCounts =  comAnswer.getCollectionedcounts();
+        if(collectionCounts == null){
+            collectionCounts = 0;
+        }
+        HashMap hashMap = new HashMap();
+        hashMap.put("userId",userId);
+        hashMap.put("contentId",comAnswerId);
+        hashMap.put("typeId",2);
+        try {
+            PraiseTread praiseTread = praiseTreadMapper.selectByTypeIdConId(hashMap);
+            PraiseTread praiseTreadIn = new PraiseTread();
+            praiseTreadIn.setUserid(userId);
+            praiseTreadIn.setContentid(comAnswerId);
+            praiseTreadIn.setTypeid(2);
+            if(praiseTread == null){
+                praiseTreadIn.setIscollection(true);
+                collectionCounts += 1;
+                praiseTreadMapper.insert(praiseTreadIn);
+            }else {
+                if(praiseTread.getIscollection() == null)
+                {
+                    praiseTreadIn.setIscollection(true);
+                    collectionCounts += 1;
+                }else if(praiseTread.getIscollection()==false){
+                    praiseTreadIn.setIscollection(true);
+                    collectionCounts += 1;
+                }else if(praiseTread.getIscollection()==true){
+                    praiseTreadIn.setIscollection(false);
+                    collectionCounts -= 1;
+                }
+                praiseTreadMapper.updatePraiseTread(praiseTreadIn);
+            }
+            comAnswer.setCollectionedcounts(collectionCounts);
+            result = comAnswerMapper.updateByPrimaryKeySelective(comAnswer);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     /**
      * 添加答案的图片
      * @param imgFile
@@ -267,8 +316,8 @@ public class ComAnswerServiceImpl implements ComAnswerService {
         }
         detailVo.setTitle(comAnswer.getTitle());
         detailVo.setContent(comAnswer.getContent());
-        detailVo.setPraiseCount(comAnswer.getPraisecount());
-        detailVo.setTreadCount(comAnswer.getTreadcount());
+        detailVo.setPraisecount(comAnswer.getPraisecount());
+        detailVo.setTreadcount(comAnswer.getTreadcount());
         detailVo.setArticleId(comAnswer.getId());
         detailVo.setCreateTime(comAnswer.getCreatetime());
         detailVo.setComQuestionId(comAnswer.getQuestionId());
@@ -296,17 +345,35 @@ public class ComAnswerServiceImpl implements ComAnswerService {
         detailVo.setImageUrl(imageUrlList);
         return detailVo;
     }
-
-    private String getTopicNameById (Integer id) {
-        if("".equals(String.valueOf(id)) || "null".equals(String.valueOf(id))) {
+    private String getTopicNameById (String  topicStr) {
+        if("".equals(String.valueOf(topicStr)) || "null".equals(String.valueOf(topicStr))) {
             return "";
         }
-        ComAnswer topic = comAnswerMapper.selectByPrimaryKey(id);
-
-        String name = null;
-        if(topic!=null){
-            name = topic.getTitle();
+        String name = "";
+        String[] topicArr= topicStr.split(",");
+        for(String str : topicArr)
+        {
+            ComAnswer topic = comAnswerMapper.selectByPrimaryKey(Integer.parseInt(str));
+            if(topic != null){
+                if(name == ""){
+                    name = topic.getTitle();
+                }else {
+                    name = name + "," + topic.getTitle();
+                }
+            }
         }
         return name;
     }
+//    private String getTopicNameById (Integer id) {
+//        if("".equals(String.valueOf(id)) || "null".equals(String.valueOf(id))) {
+//            return "";
+//        }
+//        ComAnswer topic = comAnswerMapper.selectByPrimaryKey(id);
+//
+//        String name = null;
+//        if(topic!=null){
+//            name = topic.getTitle();
+//        }
+//        return name;
+//    }
 }

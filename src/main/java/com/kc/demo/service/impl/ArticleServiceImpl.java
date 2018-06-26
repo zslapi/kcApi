@@ -85,6 +85,9 @@ public class ArticleServiceImpl implements ArticleService {
             }
             PageHelper.startPage(pageNum, pageSize);
             List<Article> articles = articleMapper.selectByUserIds(userIds);
+            for (Article article : articles){
+                article.setTypeid(0);
+            }
             addRemainFieldInList(articles);
             PageInfo<Article> pageInfo = new PageInfo<>(articles);
             resultMap.put("total",pageInfo.getTotal());
@@ -111,6 +114,9 @@ public class ArticleServiceImpl implements ArticleService {
         article.setTitle(titleKey);
         PageHelper.startPage(pageNum, pageSize);
         List<Article> articleList = articleMapper.selectByFilter(article);
+        for (Article articleTemp : articleList){
+            articleTemp.setTypeid(0);
+        }
         addRemainFieldInList(articleList);
         PageInfo<Article> pageInfo = new PageInfo<>(articleList);
         resultMap.put("total",pageInfo.getTotal());
@@ -126,6 +132,9 @@ public class ArticleServiceImpl implements ArticleService {
         article.setArticletypeid(2);
         PageHelper.startPage(pageNum, pageSize);
         List<Article> articleList = articleMapper.selectByFilter(article);
+        for (Article articleTemp : articleList){
+            articleTemp.setTypeid(0);
+        }
         addRemainFieldInList(articleList);
         PageInfo<Article> pageInfo = new PageInfo<>(articleList);
         resultMap.put("total",pageInfo.getTotal());
@@ -292,15 +301,12 @@ public class ArticleServiceImpl implements ArticleService {
                 {
                     praiseTreadIn.setIscollection(true);
                     collectionCounts += 1;
-                    praiseTreadMapper.insert(praiseTreadIn);
                 }else if(praiseTread.getIscollection()==false){
                     praiseTreadIn.setIscollection(true);
                     collectionCounts += 1;
-                    praiseTreadMapper.insert(praiseTreadIn);
                 }else if(praiseTread.getIscollection()==true){
                     praiseTreadIn.setIscollection(false);
                     collectionCounts -= 1;
-                    praiseTreadMapper.insert(praiseTreadIn);
                 }
                 praiseTreadMapper.updatePraiseTread(praiseTreadIn);
             }
@@ -347,8 +353,8 @@ public class ArticleServiceImpl implements ArticleService {
         ViewDetailVo detailVo = new ViewDetailVo();
         detailVo.setTitle(article.getTitle());
         detailVo.setContent(article.getContent());
-        detailVo.setPraiseCount(article.getPraisecount());
-        detailVo.setTreadCount(article.getTreadcount());
+        detailVo.setPraisecount(article.getPraisecount());
+        detailVo.setTreadcount(article.getTreadcount());
         detailVo.setArticleId(article.getId());
         detailVo.setCreateTime(article.getCreatetime());
         UserInfo userInfo = userInfoMapper.selectByPrimaryKey(article.getUserid());
@@ -356,7 +362,8 @@ public class ArticleServiceImpl implements ArticleService {
         HashMap hashMap = new HashMap();
         hashMap.put("userId",userId);
         hashMap.put("contentId",articleId);
-        PraiseTread praiseTread = praiseTreadMapper.selectByArticleId(hashMap);
+        hashMap.put("typeId",0);
+        PraiseTread praiseTread = praiseTreadMapper.selectByTypeIdConId(hashMap);
         PraiseTreadVo.detailPraiseTread(praiseTread,detailVo);
         Date createTimeDate = article.getCreatetime();
         String timeAgo = StringUtil.getTimeAgoAsString(createTimeDate);
@@ -374,14 +381,22 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
 
-    private String getTopicNameById (Integer id) {
-        if("".equals(String.valueOf(id)) || "null".equals(String.valueOf(id))) {
+    private String getTopicNameById (String  topicStr) {
+        if("".equals(String.valueOf(topicStr)) || "null".equals(String.valueOf(topicStr))) {
             return "";
         }
-        String name = null;
-        Article topic = articleMapper.selectByPrimaryKey(id);
-        if(topic != null){
-          name = topic.getTitle();
+        String name = "";
+        String[] topicArr= topicStr.split(",");
+        for(String str : topicArr)
+        {
+            Article topic = articleMapper.selectByPrimaryKey(Integer.parseInt(str));
+            if(topic != null){
+                if(name == ""){
+                    name = topic.getTitle();
+                }else {
+                    name = name + "," + topic.getTitle();
+                }
+            }
         }
         return name;
     }

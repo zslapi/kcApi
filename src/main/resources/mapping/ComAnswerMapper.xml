@@ -53,7 +53,7 @@
     </select>
     <select id="selectPraiseTreadCount" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
         select
-        id,userId,praiseCount,treadCount
+        id,userId,praiseCount,treadCount,collectionedCounts
         from tb_community_answer
         where id = #{id,jdbcType=INTEGER}
         for update

@@ -148,5 +148,28 @@ public class ComAnswerController {
         return result;
     }
 
+    /**
+     * 收藏答案
+     *
+     * @param comAnswerId
+     * @return
+     */
+    @RequestMapping("/collection")
+    public @ResponseBody
+    Result collectionComAnswer(@RequestParam(value = "userid") Integer userId,
+                             @RequestParam(value = "comanswerid") Integer comAnswerId) {
+        Result result = new Result();
+        try {
+            comAnswerService.collectionComAnswer(userId,comAnswerId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setStatusCode("500");
+            result.setErrorMsg(e.getMessage());
+            return result;
+        }
+        result.setStatusCode("200");
+        return result;
+    }
+
 
 }

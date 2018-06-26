@@ -22,7 +22,7 @@ public class ComAnswer {
 
     private Date createtime;
 
-    private Integer topicid;
+    private String topicid;
 
     private String location;
 
@@ -127,11 +127,11 @@ public class ComAnswer {
         this.praisecount = praisecount;
     }
 
-    public Integer getTopicId() {
+    public String getTopicId() {
         return topicid;
     }
 
-    public void setTopicId(Integer topicid) {
+    public void setTopicId(String topicid) {
         this.topicid = topicid;
     }
 
@@ -188,11 +188,11 @@ public class ComAnswer {
     public void setQuestiontypeid(Integer questiontypeid) {
         this.questiontypeid = questiontypeid;
     }
-    public Integer getTopicid() {
+    public String getTopicid() {
         return topicid;
     }
 
-    public void setTopicid(Integer topicid) {
+    public void setTopicid(String topicid) {
         this.topicid = topicid;
     }
 

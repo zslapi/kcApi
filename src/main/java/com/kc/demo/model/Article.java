@@ -38,7 +38,7 @@ public class Article {
 
     private String timeAgo;
 
-    private Integer topicid;
+    private String topicid;
 
     public Integer getId() {
         return id;
@@ -144,9 +144,9 @@ public class Article {
 
     public void setTimeAgo(String timeAgo) {this.timeAgo = timeAgo;}
 
-    public Integer getTopicid() {return topicid;}
+    public String getTopicid() {return topicid;}
 
-    public void setTopicid(Integer topicid) {this.topicid = topicid;}
+    public void setTopicid(String topicid) {this.topicid = topicid;}
 
     public Integer getContentid() { return this.contentid;}
 

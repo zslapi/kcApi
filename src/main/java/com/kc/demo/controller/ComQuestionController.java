@@ -43,7 +43,7 @@ public class ComQuestionController {
                            @RequestParam(value = "title", required = false) String title,
                            @RequestParam(value = "content", required = false) String content,
                            @RequestParam(value = "questiontype", required = false) String questiontype,
-                           @RequestParam(value = "topicid", required = false) Integer topicid){
+                           @RequestParam(value = "topicid", required = false) String topicid){
         Result result = new Result();
         if (StringUtil.isEmpty(userid) || StringUtil.isEmpty(content) || StringUtil.isEmpty(questiontype)) {
             result.setStatusCode("1001");
@@ -249,6 +249,29 @@ public class ComQuestionController {
         Result result = new Result();
         try {
             comQuestionService.treadQuestion(userId,comQuestionId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setStatusCode("500");
+            result.setErrorMsg(e.getMessage());
+            return result;
+        }
+        result.setStatusCode("200");
+        return result;
+    }
+
+    /**
+     * 收藏问题
+     *
+     * @param comQuestionId
+     * @return
+     */
+    @RequestMapping("/collection")
+    public @ResponseBody
+    Result collectionComQuestion(@RequestParam(value = "userid") Integer userId,
+                               @RequestParam(value = "comquestionid") Integer comQuestionId) {
+        Result result = new Result();
+        try {
+            comQuestionService.collectionQuestion(userId,comQuestionId);
         } catch (Exception e) {
             e.printStackTrace();
             result.setStatusCode("500");

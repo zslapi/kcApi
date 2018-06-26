@@ -16,6 +16,8 @@ public interface ComAnswerService {
 
     int treadComAnswer(Integer userId, Integer comAnswerId);
 
+    int collectionComAnswer(Integer userId,Integer comAnswerId);
+
     int addComAnswerImages(MultipartFile imgFile, Integer comAnswerId) throws FileNotFoundException;
 
     ViewDetailVo getComAnswerDetail(Integer userId, Integer comAnswerId);

@@ -39,13 +39,13 @@ public class ViewDetailVo {
 
     private Date createTime;
 
-    private String praiseCount;
+    private String praisecount;
 
-    private String treadCount;
+    private String treadcount;
 
     private Boolean ispraise;
 
-    private Boolean isTread;
+    private Boolean istread;
 
     private Boolean iscollection;
 
@@ -71,29 +71,29 @@ public class ViewDetailVo {
         this.ispraise = ispraise ;
     }
 
-    public Boolean getIsTread() {
-        return this.isTread;
+    public Boolean getIstread() {
+        return this.istread;
     }
 
-    public void setIsTread(boolean isTread) {
-        this.isTread = isTread;
+    public void setIstread(boolean istread) {
+        this.istread = istread;
     }
 
 
-    public String getPraiseCount() {
-        return praiseCount;
+    public String getPraisecount() {
+        return praisecount;
     }
 
-    public void setPraiseCount(String praiseCount) {
-        this.praiseCount = praiseCount;
+    public void setPraisecount(String praisecount) {
+        this.praisecount = praisecount;
     }
 
-    public String getTreadCount() {
-        return treadCount;
+    public String getTreadcount() {
+        return treadcount;
     }
 
-    public void setTreadCount(String treadCount) {
-        this.treadCount = treadCount;
+    public void setTreadcount(String treadcount) {
+        this.treadcount = treadcount;
     }
 
 
