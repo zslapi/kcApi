@@ -17,6 +17,8 @@ public class ComQuestion {
 
     private Integer questiontypeid;
 
+    private Integer typeid;
+
     private Integer questionstatus;
 
     private String ip;
@@ -138,4 +140,12 @@ public class ComQuestion {
     public String getTimeAgo() {return timeAgo;}
 
     public void setTimeAgo(String timeAgo) {this.timeAgo = timeAgo;}
+
+    public Integer getTypeid() {
+        return typeid;
+    }
+
+    public void setTypeid(Integer typeid) {
+        this.typeid = typeid;
+    }
 }

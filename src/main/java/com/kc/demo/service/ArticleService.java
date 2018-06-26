@@ -22,6 +22,8 @@ public interface ArticleService {
 
     int treadArticle(Integer userId,Integer articleId);
 
+    int collectionArticle(Integer userId,Integer articleId);
+
     int addArticleImages(MultipartFile imgFile, Integer articleId) throws FileNotFoundException;
 
     ViewDetailVo getArticleDetail(Integer useId,Integer articleId);

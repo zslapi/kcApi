@@ -49,7 +49,7 @@
       userTypeId, address, location, 
       ip, level, createTime
       )
-    values (#{id,jdbcType=INTEGER}, #{nickname,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=INTEGER}, #{nickname,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
       #{identitynumber,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{sex,jdbcType=BIT}, 
       #{headimageurl,jdbcType=VARCHAR}, #{userstatus,jdbcType=INTEGER}, #{age,jdbcType=INTEGER}, 
       #{usertypeid,jdbcType=INTEGER}, #{address,jdbcType=VARCHAR}, #{location,jdbcType=VARCHAR}, 

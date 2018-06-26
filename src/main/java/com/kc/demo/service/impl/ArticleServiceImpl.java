@@ -64,6 +64,9 @@ public class ArticleServiceImpl implements ArticleService {
         Map<String,Object> resultMap = new HashMap<>();
         PageHelper.startPage(pageNum, pageSize);
         List<Article> articleList = articleMapper.selectListByArticleTypeId(articleTypeId);
+        for (Article article : articleList){
+            article.setTypeid(0);
+        }
         addRemainFieldInList(articleList);
         PageInfo<Article> pageInfo = new PageInfo<>(articleList);
         resultMap.put("total",pageInfo.getTotal());
@@ -76,15 +79,18 @@ public class ArticleServiceImpl implements ArticleService {
         Map<String,Object> resultMap = new HashMap<>();
         List<UserFollow> followList = userFollowMapper.selectByUserId(userId);
         List<Integer> userIds = new ArrayList<>();
-        for(UserFollow follow:followList){
-            userIds.add(follow.getFollowuserid());
+        if(followList!=null && followList.size()!=0) {
+            for(UserFollow follow:followList){
+                userIds.add(follow.getFollowuserid());
+            }
+            PageHelper.startPage(pageNum, pageSize);
+            List<Article> articles = articleMapper.selectByUserIds(userIds);
+            addRemainFieldInList(articles);
+            PageInfo<Article> pageInfo = new PageInfo<>(articles);
+            resultMap.put("total",pageInfo.getTotal());
+            resultMap.put("list",pageInfo.getList());
         }
-        PageHelper.startPage(pageNum, pageSize);
-        List<Article> articles = articleMapper.selectByUserIds(userIds);
-        addRemainFieldInList(articles);
-        PageInfo<Article> pageInfo = new PageInfo<>(articles);
-        resultMap.put("total",pageInfo.getTotal());
-        resultMap.put("list",pageInfo.getList());
+
         return resultMap;
     }
 
@@ -256,6 +262,58 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    @Transactional(rollbackFor = {RuntimeException.class,Exception.class})
+    public int collectionArticle(Integer userId,Integer articleId){
+        int result = 0;
+        Article article = articleMapper.selectPraiseTreadCount(articleId);
+        if(article==null){
+            return result;
+        }
+        Integer collectionCounts =  article.getCollectionedcounts();
+        if(collectionCounts == null){
+            collectionCounts = 0;
+        }
+        HashMap hashMap = new HashMap();
+        hashMap.put("userId",userId);
+        hashMap.put("contentId",articleId);
+        hashMap.put("typeId",0);
+        try {
+            PraiseTread praiseTread = praiseTreadMapper.selectByTypeIdConId(hashMap);
+            PraiseTread praiseTreadIn = new PraiseTread();
+            praiseTreadIn.setUserid(userId);
+            praiseTreadIn.setContentid(articleId);
+            praiseTreadIn.setTypeid(0);
+            if(praiseTread == null){
+                praiseTreadIn.setIscollection(true);
+                collectionCounts += 1;
+                praiseTreadMapper.insert(praiseTreadIn);
+            }else {
+                if(praiseTread.getIscollection() == null)
+                {
+                    praiseTreadIn.setIscollection(true);
+                    collectionCounts += 1;
+                    praiseTreadMapper.insert(praiseTreadIn);
+                }else if(praiseTread.getIscollection()==false){
+                    praiseTreadIn.setIscollection(true);
+                    collectionCounts += 1;
+                    praiseTreadMapper.insert(praiseTreadIn);
+                }else if(praiseTread.getIscollection()==true){
+                    praiseTreadIn.setIscollection(false);
+                    collectionCounts -= 1;
+                    praiseTreadMapper.insert(praiseTreadIn);
+                }
+                praiseTreadMapper.updatePraiseTread(praiseTreadIn);
+            }
+            article.setCollectionedcounts(collectionCounts);
+            result = articleMapper.updateByPrimaryKeySelective(article);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    @Override
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
     public int addArticleImages(MultipartFile imgFile, Integer articleId) {
         //先保存文件
@@ -313,7 +371,6 @@ public class ArticleServiceImpl implements ArticleService {
         }
         detailVo.setImageUrl(imageUrlList);
         return detailVo;
-//        return getDetailVo(userId,articleId);
     }
 
 
@@ -328,4 +385,8 @@ public class ArticleServiceImpl implements ArticleService {
         }
         return name;
     }
+
+
+
+
 }

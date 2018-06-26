@@ -14,6 +14,8 @@ public class Article {
 
     private Integer articletypeid;
 
+    private Integer typeid;
+
     private Integer articlestatus;
 
     private String ip;
@@ -30,9 +32,9 @@ public class Article {
 
     private String content;
 
-    private String usernickname;
+    private String nickname;
 
-    private String userheadimageurl;
+    private String headimageurl;
 
     private String timeAgo;
 
@@ -134,9 +136,9 @@ public class Article {
         this.content = content == null ? null : content.trim();
     }
 
-    public String getUsernickname() { return usernickname;}
+    public String getNickname() { return nickname;}
 
-    public void setUsernickname(String usernickname) {this.usernickname = usernickname;}
+    public void setNickname(String nickname) {this.nickname = nickname;}
 
     public String getTimeAgo() {return timeAgo;}
 
@@ -150,7 +152,13 @@ public class Article {
 
     public void setContentid(Integer contentid){this.contentid =contentid;}
 
-    public String getUserheadimageurl() {return userheadimageurl;}
+    public String getHeadimageurl() {return headimageurl;}
 
-    public void setUserheadimageurl(String userheadimageurl){this.userheadimageurl = userheadimageurl;}
+    public void setHeadimageurl(String headimageurl){this.headimageurl = headimageurl;}
+
+    public Integer getTypeid(){return typeid;}
+
+    public void setTypeid(Integer typeid) {
+        this.typeid = typeid;
+    }
 }

@@ -1,8 +1,14 @@
 package com.kc.demo.vo;
 
+import com.kc.demo.model.ComAnswer;
+import com.kc.demo.model.CommunityImages;
+import com.kc.demo.model.PraiseTread;
 import com.kc.demo.model.UserInfo;
+import com.kc.demo.util.Constants;
+import com.kc.demo.util.StringUtil;
 
 import javax.xml.crypto.Data;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -23,9 +29,9 @@ public class ViewDetailVo {
 
     protected Integer comCommentId;
 
-    private String nickName;
+    private String nickname;
 
-    private String headImageUrl;
+    private String headimageurl;
 
     private String topic;
 
@@ -40,6 +46,8 @@ public class ViewDetailVo {
     private Boolean ispraise;
 
     private Boolean isTread;
+
+    private Boolean iscollection;
 
     private String questionTitle;
 
@@ -147,27 +155,27 @@ public class ViewDetailVo {
         this.timeAgo = timeAgo;
     }
 
-    public Date getCreateTime() { return this.createTime;}
+    public Date getCreateTime() { return createTime;}
 
     public void setCreateTime(Date createTime) {this.createTime = createTime;}
 
-    public String getNickName() {return this.nickName;}
+    public String getNickname() {return nickname;}
 
-    public void setNickName(String nickName) { this.nickName = nickName;}
+    public void setNickname(String nickname) { this.nickname = nickname;}
 
-    public String getHeadImageUrl() {return headImageUrl;}
+    public String getHeadimageurl() {return headimageurl;}
 
-    public void setHeadImageUrl(String headImageUrl) { this.headImageUrl = headImageUrl;}
+    public void setHeadimageUrl(String headimageurl) { this.headimageurl = headimageurl;}
 
     public static void setUserInfo(UserInfo userInfo,ViewDetailVo detailVo){
         if(userInfo!=null){
             if(userInfo.getNickname()!=null && userInfo.getHeadimageurl()!=null){
-                detailVo.setNickName(userInfo.getNickname());
-                detailVo.setHeadImageUrl(userInfo.getHeadimageurl());
+                detailVo.setNickname(userInfo.getNickname());
+                detailVo.setHeadimageUrl(userInfo.getHeadimageurl());
             }
         }else {
-            detailVo.setNickName(null);
-            detailVo.setHeadImageUrl(null);
+            detailVo.setNickname(null);
+            detailVo.setHeadimageUrl(null);
         }
     }
 
@@ -179,4 +187,11 @@ public class ViewDetailVo {
 
     public void setQuestionContent(String questionContent){this.questionContent = questionContent;}
 
+    public Boolean getIscollection() {
+        return iscollection;
+    }
+
+    public void setIscollection(Boolean iscollection) {
+        this.iscollection = iscollection;
+    }
 }

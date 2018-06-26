@@ -21,9 +21,9 @@
         <result column="id" property="id" jdbcType="INTEGER" />
         <result column="title" property="title" jdbcType="VARCHAR" />
         <result column="content" property="content" jdbcType="LONGVARCHAR" />
-        <result column="userNickName" property="usernickname" jdbcType="VARCHAR" />
+        <result column="nickName" property="nickname" jdbcType="VARCHAR" />
         <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
-        <result column="userHeadImageUrl" property="userheadimageurl" jdbcType="VARCHAR"/>
+        <result column="headImageUrl" property="headimageurl" jdbcType="VARCHAR"/>
         <result column="questionId" property="questionid" jdbcType="INTEGER" />
         <result column="questionTitle" property="questiontitle" jdbcType="VARCHAR"/>
         <result column="questionContent" property="questioncontent" jdbcType="VARCHAR"/>
@@ -59,7 +59,8 @@
         for update
    </select>
     <select id="selectByComQuestionId" resultMap="ResultMapForFollowAnswer" parameterType="java.lang.Integer" >
-      select a.userId userId,
+      select a.id id,
+       a.userId userId,
        a.content content,
        a.title title,
        a.createTime createTime,
@@ -69,8 +70,8 @@
        b.id questionId,
        b.title questionTitle,
        b.content questionContent,
-       c.nickName userNickName,
-       c.headImageUrl userHeadImageUrl
+       c.nickName nickName,
+       c.headImageUrl headImageUrl
        from tb_community_answer a left join tb_community_question b on a.comQuestionId = b.id
        left join tb_user_info c on a.userId = c.id
        where a.comQuestionId = #{comquestionid,jdbcType=INTEGER}

@@ -20,7 +20,11 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.lang.String;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
@@ -44,7 +48,6 @@ public class ArticleController {
 
     /**
      * 发布文章
-     *
      * @param userid
      * @param title
      * @param content
@@ -128,7 +131,7 @@ public class ArticleController {
     }
 
     /**
-     * 根据板块id获取文章列表
+     * 根据板块id获取文章问题列表
      *
      * @param articleTypeId
      * @return
@@ -139,9 +142,19 @@ public class ArticleController {
                                  @RequestParam(value = "pagenum") Integer pageNum,
                                  @RequestParam(value = "pagesize") Integer pageSize) {
         Result result = new Result();
-        Map<String,Object> data = null;
+        Map<String,Object> data = new HashMap<>();
+        Map<String,Object> dataArticle = null;
+        Map<String,Object> dataComQuestion = null;
         try {
-            data = articleService.getArticleListByArticleTypeId(articleTypeId,pageNum,pageSize);
+            dataArticle = articleService.getArticleListByArticleTypeId(articleTypeId,pageNum,pageSize/2);
+            dataComQuestion = comQuestionService.getQuestionListByQuestionTypeId(articleTypeId,pageNum,pageSize/2);
+            List<Object> listArticle =(List<Object>) dataArticle.get("list");
+            List<Object> listComquestion =(List<Object>)dataComQuestion.get("list");
+            Long totalArticle = (Long)dataArticle.get("total");
+            Long totalComquestion = (Long)dataArticle.get("total");
+            listComquestion.addAll(listArticle);
+            data.put("total",totalArticle+totalComquestion);
+            data.put("list",listComquestion);
         } catch (Exception e) {
             e.printStackTrace();
             result.setStatusCode("500");
@@ -218,8 +231,22 @@ public class ArticleController {
                        @RequestParam(value = "pagesize") Integer pageSize) {
         Result result = new Result();
         Map<String,Object> data = null;
+        Map<String ,Object> topicData = null;
+        List<Object> topicsList = new ArrayList<>();
+        long topicsTotal=0;
+        String[] topicArr= topic.split(",");
         try {
-            data = articleService.getArticleListByTopic(topic,pageNum,pageSize);
+            for(String topicstr : topicArr)
+            {
+                topicData = articleService.getArticleListByTopic(topic,pageNum,pageSize);
+                List<Object> listArticle =(List<Object>) topicData.get("list");
+                long listTotal = (Long)topicData.get("total");
+                topicsList.addAll(listArticle);
+                topicsTotal=topicsTotal+ listTotal;
+            }
+            data.put("total",topicsTotal);
+            data.put("list",topicsList);
+
         } catch (Exception e) {
             e.printStackTrace();
             result.setStatusCode("500");
@@ -243,7 +270,7 @@ public class ArticleController {
                          @RequestParam(value = "articleid") Integer articleId) {
         Result result = new Result();
         try {
-            articleService.praiseArticle(userId,articleId);
+            result.setData(articleService.praiseArticle(userId,articleId));
         } catch (Exception e) {
             e.printStackTrace();
             result.setStatusCode("500");
@@ -276,6 +303,30 @@ public class ArticleController {
         result.setStatusCode("200");
         return result;
     }
+
+    /**
+     * 收藏文章
+     *
+     * @param articleId
+     * @return
+     */
+    @RequestMapping("/tread")
+    public @ResponseBody
+    Result collectionArticle(@RequestParam(value = "userid") Integer userId,
+                         @RequestParam(value = "articleid") Integer articleId) {
+        Result result = new Result();
+        try {
+            articleService.collectionArticle(userId,articleId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setStatusCode("500");
+            result.setErrorMsg(e.getMessage());
+            return result;
+        }
+        result.setStatusCode("200");
+        return result;
+    }
+
 
     /**
      * 上传文章图片

@@ -22,9 +22,9 @@
     <result column="id" property="id" jdbcType="INTEGER" />
     <result column="title" property="title" jdbcType="VARCHAR" />
     <result column="content" property="content" jdbcType="LONGVARCHAR" />
-    <result column="userNickName" property="usernickname" jdbcType="VARCHAR" />
+    <result column="nickName" property="nickname" jdbcType="VARCHAR" />
     <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
-    <result column="userHeadImageUrl" property="userheadimageurl" jdbcType="VARCHAR"/>
+    <result column="headImageUrl" property="headimageurl" jdbcType="VARCHAR"/>
   </resultMap>
   <sql id="Base_Column_List" >
     id, title, userId, articleTypeId, articlestatus, ip, location, collectionedCounts, 
@@ -34,7 +34,7 @@
     content
   </sql>
   <sql id="Other_Column_List" >
-    userNickName,userHeadImageUrl
+    nickName,headImageUrl
   </sql>
   <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
     select 
@@ -52,8 +52,8 @@
     a.createTime createTime,
     a.praiseCount praiseCount,
     a.treadCount treadCount,
-    u.nickName userNickName,
-    u.headImageUrl userHeadImageUrl
+    u.nickName nickName,
+    u.headImageUrl headImageUrl
     from tb_article a
     left join tb_user_info u
     on a.userId = u.id
@@ -78,8 +78,8 @@
     a.createTime createTime,
     a.praiseCount praiseCount,
     a.treadCount treadCount,
-    u.nickName userNickName,
-    u.headImageUrl userHeadImageUrl
+    u.nickName nickName,
+    u.headImageUrl headImageUrl
     from tb_article a
     left join tb_user_info u
     on a.userId = u.id
@@ -94,8 +94,8 @@
     a.createTime createTime,
     a.praiseCount praiseCount,
     a.treadCount treadCount,
-    u.nickName userNickName,
-    u.headImageUrl userHeadImageUrl
+    u.nickName nickName,
+    u.headImageUrl headImageUrl
     from tb_article a
     left join tb_user_info u
     on a.userId = u.id
@@ -115,16 +115,15 @@
     a.createTime createTime,
     a.praiseCount praiseCount,
     a.treadCount treadCount,
-    u.nickName userNickName,
-    u.headImageUrl userHeadImageUrl
+    u.nickName nickName,
+    u.headImageUrl headImageUrl
     from tb_article a
     left join tb_user_info u
     on a.userId = u.id where a.id = #{id,jdbcType=INTEGER}
   </select>
-
   <select id="selectPraiseTreadCount" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
         select
-        id,userId,praiseCount,treadCount
+        id,userId,praiseCount,treadCount,collectionedCounts
         from tb_article
         where id = #{id,jdbcType=INTEGER}
         for update

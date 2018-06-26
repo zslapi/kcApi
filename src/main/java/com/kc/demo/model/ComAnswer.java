@@ -32,9 +32,9 @@ public class ComAnswer {
 
     private Integer collectionedcounts;
 
-    private String usernickname;
+    private String nickname;
 
-    private String userheadimageurl;
+    private String headimageurl;
 
     private Integer questionid;
 
@@ -151,13 +151,13 @@ public class ComAnswer {
         this.collectionedcounts = collectionedcounts;
     }
 
-    public String getUserNickName(){return  usernickname;}
+    public String getNickname(){return  nickname;}
 
-    public void setUserNickName(String userNickName){this.usernickname = userNickName;}
+    public void setNickname(String nickname){this.nickname = nickname;}
 
-    public String getUserHeadImageUrl(){return userheadimageurl;}
+    public String getHeadimageurl(){return headimageurl;}
 
-    public void setUserHeadImageUrl(String userHeadImageUrl){this.userheadimageurl = userHeadImageUrl;}
+    public void setHeadimageurl(String headimageurl){this.headimageurl = headimageurl;}
 
     public String getQuestionContent() {
         return questioncontent;

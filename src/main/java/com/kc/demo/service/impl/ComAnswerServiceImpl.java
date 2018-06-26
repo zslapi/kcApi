@@ -3,10 +3,13 @@ package com.kc.demo.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.kc.demo.config.MyConfig;
-import com.kc.demo.dao.*;
+import com.kc.demo.dao.ComAnswerMapper;
+import com.kc.demo.dao.CommunityImagesMapper;
+import com.kc.demo.dao.PraiseTreadMapper;
+import com.kc.demo.dao.UserInfoMapper;
 import com.kc.demo.jobs.SaveImagesTask;
 import com.kc.demo.model.*;
-import com.kc.demo.service.ComQuestionService;
+import com.kc.demo.service.ComAnswerService;
 import com.kc.demo.util.Constants;
 import com.kc.demo.util.StringUtil;
 import com.kc.demo.util.ThreadPoolUtil;
@@ -18,18 +21,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.FileNotFoundException;
-import java.security.Key;
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 @Service
-public class ComQuestionServicelmpl implements ComQuestionService {
+public class ComAnswerServiceImpl implements ComAnswerService {
 
     @Resource
-    private ComQuestionMapper comQuestionMapper;
+    private ComAnswerMapper comAnswerMapper;
 
     @Resource
     private MyConfig myConfig;
@@ -43,108 +43,35 @@ public class ComQuestionServicelmpl implements ComQuestionService {
     @Resource
     private UserInfoMapper userInfoMapper;
 
-    @Resource ComAnswerMapper comAnswerMapper;
-
     /**
-     * 发布问题
+     * 发布答案
      * @param record
      * @return
      */
     @Override
     @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
-    public int add(ComQuestion record) {
-        comQuestionMapper.insert(record);
+    public int add(ComAnswer record) {
+        comAnswerMapper.insert(record);
         int id = record.getId();
         return id;
     }
 
-    private void addTimeAgoInList(List<ComQuestion> comQuestionList) {
-        for (ComQuestion comQuestion:comQuestionList) {
-            Date createTimeDate = comQuestion.getCreatetime();
-            String timeAgo = StringUtil.getTimeAgoAsString(createTimeDate);
-            comQuestion.setTimeAgo(timeAgo);
-        }
-    }
-
-
     /**
-     * 根据问题类型获取问题列表
-     * @param questionTypeId
-     * @return
-     */
-    @Override
-    @Transactional(rollbackFor = {RuntimeException.class,Exception.class})
-    public Map<String,Object> getQuestionListByQuestionTypeId(Integer questionTypeId, Integer pageNum, Integer pageSize) {
-        Map<String,Object> resultMap = new HashMap<>();
-        PageHelper.startPage(pageNum, pageSize);
-        List<ComQuestion> comQuestionList = comQuestionMapper.selectListByQuestionTypeId(questionTypeId);
-        for (ComQuestion comQuestion : comQuestionList){
-            comQuestion.setTypeid(1);
-        }
-        addTimeAgoInList(comQuestionList);
-        PageInfo<ComQuestion> pageInfo = new PageInfo<>(comQuestionList);
-        resultMap.put("total",pageInfo.getTotal());
-        resultMap.put("list",pageInfo.getList());
-        return resultMap;
-    }
-
-    /**
-     * 根据问题标题获取问题列表
-     * @param titleKey
-     * @return
-     */
-    @Override
-    @Transactional(rollbackFor = {RuntimeException.class,Exception.class})
-    public Map<String,Object> getQuestionListByTitleKey (String titleKey,Integer pageNum,Integer pageSize) {
-        Map<String,Object> resultMap = new HashMap<>();
-        ComQuestion comQuestion = new ComQuestion();
-        comQuestion.setTitle(titleKey);
-        PageHelper.startPage(pageNum, pageSize);
-        List<ComQuestion> comQuestionList = comQuestionMapper.selectByFilter(comQuestion);
-        addTimeAgoInList(comQuestionList);
-        PageInfo<ComQuestion> pageInfo = new PageInfo<>(comQuestionList);
-        resultMap.put("total",pageInfo.getTotal());
-        resultMap.put("list",pageInfo.getList());
-        return resultMap;
-    }
-
-    /**
-     * 根据问题主题获取问题列表
-     * @param topic
-     * @return
-     */
-    @Override
-    @Transactional(rollbackFor = {RuntimeException.class,Exception.class})
-    public Map<String,Object> getQuestionListByTopic (String topic,Integer pageNum,Integer pageSize) {
-        Map<String,Object> resultMap = new HashMap<>();
-        ComQuestion comQuestion = new ComQuestion();
-        comQuestion.setTopicid(2);
-        PageHelper.startPage(pageNum, pageSize);
-        List<ComQuestion> comQuestionList = comQuestionMapper.selectByFilter(comQuestion);
-        addTimeAgoInList(comQuestionList);
-        PageInfo<ComQuestion> pageInfo = new PageInfo<>(comQuestionList);
-        resultMap.put("total",pageInfo.getTotal());
-        resultMap.put("list",pageInfo.getList());
-        return resultMap;
-    }
-
-    /**
-     * 对问题点赞
+     * 对答案点赞
      * @param userId
-     * @param questionId
+     * @param comAnswerId
      * @return
      */
-
     @Override
     @Transactional(rollbackFor = {RuntimeException.class,Exception.class})
-    public int praiseQuestion(Integer userId,Integer questionId) {
+    public int praiseComAnswer(Integer userId,Integer comAnswerId) {
         int result = 0;
-        ComQuestion comQuestion = comQuestionMapper.selectPraiseTreadCount(questionId);
-        if(comQuestion==null){
+        ComAnswer comAnswer = comAnswerMapper.selectPraiseTreadCount(comAnswerId);
+        if(comAnswer==null){
             return result;
         }
-        String praiseCountStr =  comQuestion.getPraisecount();
-        String treadCountStr = comQuestion.getTreadcount();
+        String praiseCountStr =  comAnswer.getPraisecount();
+        String treadCountStr = comAnswer.getTreadcount();
         int praiseCount = 0;
         int treadCount = 0;
         if(!StringUtil.isEmpty(praiseCountStr) && !StringUtil.isEmpty(treadCountStr)){
@@ -153,14 +80,14 @@ public class ComQuestionServicelmpl implements ComQuestionService {
         }
         HashMap hashMap = new HashMap();
         hashMap.put("userId",userId);
-        hashMap.put("contentId",questionId);
-        hashMap.put("typeId",1);
+        hashMap.put("contentId",comAnswerId);
+        hashMap.put("typeId",2);
         try {
             PraiseTread praiseTread = praiseTreadMapper.selectByTypeIdConId(hashMap);
             PraiseTread praiseTreadIn = new PraiseTread();
             praiseTreadIn.setUserid(userId);
-            praiseTreadIn.setContentid(questionId);
-            praiseTreadIn.setTypeid(1);
+            praiseTreadIn.setContentid(comAnswerId);
+            praiseTreadIn.setTypeid(2);
             if(praiseTread == null) {
                 praiseTreadIn.setIspraise(true);
                 praiseCount += 1;
@@ -189,9 +116,10 @@ public class ComQuestionServicelmpl implements ComQuestionService {
                 }
                 praiseTreadMapper.updatePraiseTread(praiseTreadIn);
             }
-            comQuestion.setPraisecount(String.valueOf(praiseCount));
-            comQuestion.setTreadcount(String.valueOf(treadCount));
-            result = comQuestionMapper.updateByPrimaryKeySelective(comQuestion);
+            comAnswer.setPraisecount(String.valueOf(praiseCount));
+            comAnswer.setTreadcount(String.valueOf(treadCount));
+            result = comAnswerMapper.updateByPrimaryKeySelective(comAnswer);
+
         }catch (Exception e){
             e.printStackTrace();
         }finally {
@@ -200,21 +128,21 @@ public class ComQuestionServicelmpl implements ComQuestionService {
     }
 
     /**
-     * 对问题点踩
+     * 对答案点踩
      * @param userId
-     * @param questionId
+     * @param comAnswerId
      * @return
      */
     @Override
     @Transactional(rollbackFor = {RuntimeException.class,Exception.class})
-    public int treadQuestion(Integer userId,Integer questionId){
+    public int treadComAnswer(Integer userId,Integer comAnswerId){
         int result = 0;
-        ComQuestion comQuestion = comQuestionMapper.selectPraiseTreadCount(questionId);
-        if(comQuestion==null){
+        ComAnswer comAnswer = comAnswerMapper.selectPraiseTreadCount(comAnswerId);
+        if(comAnswer==null){
             return result;
         }
-        String praiseCountStr =  comQuestion.getPraisecount();
-        String treadCountStr = comQuestion.getTreadcount();
+        String praiseCountStr =  comAnswer.getPraisecount();
+        String treadCountStr = comAnswer.getTreadcount();
         int praiseCount = 0;
         int treadCount = 0;
         if(!StringUtil.isEmpty(praiseCountStr) && !StringUtil.isEmpty(treadCountStr)){
@@ -223,14 +151,14 @@ public class ComQuestionServicelmpl implements ComQuestionService {
         }
         HashMap hashMap = new HashMap();
         hashMap.put("userId",userId);
-        hashMap.put("contentId",questionId);
-        hashMap.put("typeId",1);
+        hashMap.put("contentId",comAnswerId);
+        hashMap.put("typeId",2);
         try {
             PraiseTread praiseTread = praiseTreadMapper.selectByTypeIdConId(hashMap);
             PraiseTread praiseTreadIn = new PraiseTread();
             praiseTreadIn.setUserid(userId);
-            praiseTreadIn.setContentid(questionId);
-            praiseTreadIn.setTypeid(1);
+            praiseTreadIn.setContentid(comAnswerId);
+            praiseTreadIn.setTypeid(2);
             if(praiseTread == null) {
                 praiseTreadIn.setIstread(true);
                 treadCount += 1;
@@ -258,9 +186,9 @@ public class ComQuestionServicelmpl implements ComQuestionService {
                 }
                 praiseTreadMapper.updatePraiseTread(praiseTreadIn);
             }
-            comQuestion.setPraisecount(String.valueOf(praiseCount));
-            comQuestion.setTreadcount(String.valueOf(treadCount));
-            result = comQuestionMapper.updateByPrimaryKeySelective(comQuestion);
+            comAnswer.setPraisecount(String.valueOf(praiseCount));
+            comAnswer.setTreadcount(String.valueOf(treadCount));
+            result = comAnswerMapper.updateByPrimaryKeySelective(comAnswer);
         }catch (Exception e){
             e.printStackTrace();
         }finally {
@@ -270,19 +198,19 @@ public class ComQuestionServicelmpl implements ComQuestionService {
     }
 
     /**
-     * 添加问题的图片
+     * 添加答案的图片
      * @param imgFile
-     * @param comQuestionId
+     * @param comAnswerId
      * @return
      * @throws FileNotFoundException
      */
     @Override
     @Transactional(rollbackFor = {RuntimeException.class,Exception.class})
-    public int addQuestionImages(MultipartFile imgFile, Integer comQuestionId) throws FileNotFoundException {
+    public int addComAnswerImages(MultipartFile imgFile, Integer comAnswerId) throws FileNotFoundException {
         //先保存文件
         String fileName = null;
         String path = null;
-        Callable<Object> task = new SaveImagesTask(imgFile,myConfig.getImagesComQuestionPath());
+        Callable<Object> task = new SaveImagesTask(imgFile,myConfig.getImagesArticlePath());
         Future<Object> taskResult = ThreadPoolUtil.submit(task);
         Map<String,Object> resultMap = SaveImagesTask.getSaveImgPath(taskResult);
         fileName = (String) resultMap.get("fileName");
@@ -292,7 +220,7 @@ public class ComQuestionServicelmpl implements ComQuestionService {
             CommunityImages communityImages = new CommunityImages();
             communityImages.setOriginalname(imgFile.getOriginalFilename());
             communityImages.setFilename(fileName);
-            communityImages.setComquestionid(comQuestionId);
+            communityImages.setComanswerid(comAnswerId);
             communityImages.setImgtype(imgFile.getContentType());
             communityImages.setFilepath(path);
             communityImagesMapper.insert(communityImages);
@@ -301,78 +229,47 @@ public class ComQuestionServicelmpl implements ComQuestionService {
         return comQuestionImgId;
     }
 
-    public ViewDetailVo getComQuestionDetail(Integer userId, Integer questionId,Integer pageNum,Integer pageSize){
-        ComQuestion comQuestion = comQuestionMapper.selectByPrimaryKey(questionId);
-        ViewDetailVo detailVo = new ViewDetailVo();
-        detailVo.setTitle(comQuestion.getTitle());
-        detailVo.setContent(comQuestion.getContent());
-        detailVo.setPraiseCount(comQuestion.getPraisecount());
-        detailVo.setTreadCount(comQuestion.getTreadcount());
-        detailVo.setComQuestionId(comQuestion.getId());
-        detailVo.setCreateTime(comQuestion.getCreatetime());
-        UserInfo userInfo = userInfoMapper.selectByPrimaryKey(comQuestion.getUserid());
-        ViewDetailVo.setUserInfo(userInfo,detailVo);
-        HashMap hashMap = new HashMap();
-        hashMap.put("userId",userId);
-        hashMap.put("contentId",questionId);
-        hashMap.put("typeId",1);
-        PraiseTread praiseTread = praiseTreadMapper.selectByTypeIdConId(hashMap);
-        PraiseTreadVo.detailPraiseTread(praiseTread,detailVo);
-        detailVo.setNickname(userInfo.getNickname());
-        detailVo.setHeadimageUrl(userInfo.getHeadimageurl());
-        Date createTimeDate = comQuestion.getCreatetime();
-        String timeAgo = StringUtil.getTimeAgoAsString(createTimeDate);
-        detailVo.setTimeAgo(timeAgo);
-        String topicName = getTopicNameById(comQuestion.getTopicid());
-        detailVo.setTopic(topicName);
-        List<CommunityImages> imagesList = communityImagesMapper.selectCommunityImageListByQueId(comQuestion.getId());
-        List<String> imageUrlList = new ArrayList<>();
-        for (int i=0;i<imagesList.size();i++) {
-            CommunityImages image = imagesList.get(i);
-            imageUrlList.add(Constants.serverUrl()+myConfig.getImagesComQuestionPath()+image.getFilename());
-        }
-        detailVo.setImageUrl(imageUrlList);
+    /**
+     * 根据问题ID获取答案列表
+     * @param comQuestionId
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
 
-        HashMap<String,Object> resultMap = new HashMap<>();
+    @Override
+    @Transactional(rollbackFor = {RuntimeException.class,Exception.class})
+    public Map<String,Object> getComAnswerListByQueId(Integer comQuestionId,Integer pageNum,Integer pageSize){
+        Map<String,Object> resultMap = new HashMap<>();
         PageHelper.startPage(pageNum, pageSize);
-        List<ComAnswer> comAnswerList = comAnswerMapper.selectByComQuestionId(questionId);
-        List<ViewDetailVo> answerDetailList = new ArrayList<>();
-        for(ComAnswer comAnswer : comAnswerList)
+        List<ComAnswer> comAnswerList = comAnswerMapper.selectByComQuestionId(comQuestionId);
+        List<ViewDetailVo> detailVoList = new ArrayList<>();
+        for (ComAnswer comAnswer : comAnswerList)
         {
-            ViewDetailVo answerdetailVo = getAnswertDetail(userId,comAnswer.getId());
-            answerDetailList.add(answerdetailVo);
+            detailVoList.add(getComAnswerDetail(comAnswer.getUserid(),comAnswer.getId()));
         }
-        PageInfo<ViewDetailVo> pageInfo = new PageInfo<>(answerDetailList);
+        PageInfo<ViewDetailVo> pageInfo = new PageInfo<>(detailVoList);
         resultMap.put("total",pageInfo.getTotal());
         resultMap.put("list",pageInfo.getList());
-        detailVo.setAnswerMap(resultMap);
-        return detailVo;
+        return resultMap;
     }
 
-
-    private String getTopicNameById (Integer id) {
-        if("".equals(String.valueOf(id)) || "null".equals(String.valueOf(id))) {
-            return "";
-        }
-        String name = null;
-        ComQuestion topic = comQuestionMapper.selectByPrimaryKey(id);
-        if(topic!=null){
-            name = topic.getTitle();
-        }
-        return name;
+    @Override
+    public ViewDetailVo getComAnswerDetail(Integer userId, Integer comAnswerId){
+        return getAnswertDetail(userId,comAnswerId);
     }
 
-    private ViewDetailVo getAnswertDetail(Integer userId, Integer comAnswerId){
+    public ViewDetailVo getAnswertDetail(Integer userId, Integer comAnswerId){
         ComAnswer comAnswer = comAnswerMapper.selectByComAnswerId(comAnswerId);
         ViewDetailVo detailVo = new ViewDetailVo();
         if(comAnswer==null){
-            return null;
+            return detailVo ;
         }
         detailVo.setTitle(comAnswer.getTitle());
         detailVo.setContent(comAnswer.getContent());
         detailVo.setPraiseCount(comAnswer.getPraisecount());
         detailVo.setTreadCount(comAnswer.getTreadcount());
-        detailVo.setComAnswerId(comAnswerId);
+        detailVo.setArticleId(comAnswer.getId());
         detailVo.setCreateTime(comAnswer.getCreatetime());
         detailVo.setComQuestionId(comAnswer.getQuestionId());
         detailVo.setQuestionTitle(comAnswer.getQuestionTitle());
@@ -400,4 +297,16 @@ public class ComQuestionServicelmpl implements ComQuestionService {
         return detailVo;
     }
 
+    private String getTopicNameById (Integer id) {
+        if("".equals(String.valueOf(id)) || "null".equals(String.valueOf(id))) {
+            return "";
+        }
+        ComAnswer topic = comAnswerMapper.selectByPrimaryKey(id);
+
+        String name = null;
+        if(topic!=null){
+            name = topic.getTitle();
+        }
+        return name;
+    }
 }

@@ -8,9 +8,10 @@
         <result column="typeId" property="typeid" jdbcType="INTEGER" />
         <result column="isPraise" property="ispraise" jdbcType="INTEGER" />
         <result column="isTread" property="istread" jdbcType="INTEGER" />
+        <result column="isCollection" property="iscollection" jdbcType="INTEGER" />
     </resultMap>
     <sql id="Base_Column_List" >
-    id,userId,contentId,typeId,isPraise,isTread
+    id,userId,contentId,typeId,isPraise,isTread,isCollection
     </sql>
     <select id="selectByArticleId" resultMap="BaseResultMap">
         select userId,contentId,isPraise,isTread
@@ -43,7 +44,7 @@
         for update
     </select>
     <select id="selectByTypeIdConId" resultMap="BaseResultMap">
-        select userId,contentId,isPraise,isTread
+        select userId,contentId,typeId,isPraise,isTread
         from tb_praise_tread
         where userId = #{userId,jdbcType=INTEGER} and contentId = #{contentId,jdbcType=INTEGER} and typeId = #{typeId,jdbcType=INTEGER}
         for update
@@ -113,7 +114,7 @@
                 isTread = #{istread,jdbcType=INTEGER}
             </if>
         </set>
-        where userId = #{userid,jdbcType=INTEGER} and contentId = #{contentid,jdbcType=INTEGER} and typeId = 1
+        where userId = #{userid,jdbcType=INTEGER} and contentId = #{contentid,jdbcType=INTEGER} and typeId = 3
     </update>
     <update id="updatePraiseTreadByComQueId" parameterType="com.kc.demo.model.PraiseTread">
         update tb_praise_tread
@@ -125,7 +126,7 @@
                 isTread = #{istread,jdbcType=INTEGER}
             </if>
         </set>
-        where userId = #{userid,jdbcType=INTEGER} and contentId = #{contentid,jdbcType=INTEGER} and typeId = 2
+        where userId = #{userid,jdbcType=INTEGER} and contentId = #{contentid,jdbcType=INTEGER} and typeId = 1
     </update>
     <update id="updatePraiseTreadByComAnsId" parameterType="com.kc.demo.model.PraiseTread">
         update tb_praise_tread
@@ -137,7 +138,7 @@
                 isTread = #{istread,jdbcType=INTEGER}
             </if>
         </set>
-        where userId = #{userid,jdbcType=INTEGER} and contentId = #{contentid,jdbcType=INTEGER} and typeId = 3
+        where userId = #{userid,jdbcType=INTEGER} and contentId = #{contentid,jdbcType=INTEGER} and typeId = 2
     </update>
     <update id="updatePraiseTreadByComComId" parameterType="com.kc.demo.model.PraiseTread">
         update tb_praise_tread

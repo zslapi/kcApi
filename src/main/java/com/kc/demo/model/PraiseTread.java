@@ -13,6 +13,8 @@ public class PraiseTread {
 
     private Boolean istread;
 
+    private Boolean iscollection;
+
     public Integer getId(){ return this.id; }
 
     public void setId(Integer id){ this.id = id; }
@@ -36,4 +38,12 @@ public class PraiseTread {
     public Boolean getIstread() { return istread; }
 
     public void setIstread(Boolean istread) { this.istread = istread; }
+
+    public void setIscollection(Boolean iscollection) {
+        this.iscollection = iscollection;
+    }
+
+    public Boolean getIscollection() {
+        return iscollection;
+    }
 }
