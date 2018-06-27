@@ -1,7 +1,7 @@
 package com.kc.demo.controller;
 
 import com.kc.demo.model.Comment;
-import com.kc.demo.service.CommentService;
+import com.kc.demo.service.ArticleCommentService;
 import com.kc.demo.util.StringUtil;
 import com.kc.demo.vo.Result;
 import org.springframework.stereotype.Controller;
@@ -13,7 +13,7 @@ import javax.annotation.Resource;
 @RequestMapping("/comment")
 public class CommentController {
     @Resource
-    private CommentService commentService;
+    private ArticleCommentService articleCommentService;
 
     @RequestMapping(value = "/publish",method = RequestMethod.POST)
     public @ResponseBody Result publishComment (@RequestParam(value = "userid", required = false) String userid,
@@ -34,9 +34,8 @@ public class CommentController {
         if(!StringUtil.isEmpty(parent)){
             comment.setParentid(Integer.parseInt(parent));
         }
-
         try {
-            int commentId = commentService.add(comment);
+            int commentId = articleCommentService.add(comment);
         } catch (Exception e) {
             e.printStackTrace();
             result.setStatusCode("500");
@@ -52,7 +51,7 @@ public class CommentController {
     public @ResponseBody Result praiseComment (@RequestParam("commentid") Integer commentId,@RequestParam("userid") Integer userId) {
         Result result = new Result();
         try {
-            commentService.praiseComment(commentId,userId);
+            articleCommentService.praiseComment(commentId,userId);
         } catch (Exception e) {
             e.printStackTrace();
             result.setStatusCode("500");
@@ -67,7 +66,7 @@ public class CommentController {
     public @ResponseBody Result threadComment (@RequestParam("commentid") Integer commentId,@RequestParam("userid") Integer userId) {
         Result result = new Result();
         try {
-            commentService.treadComment(commentId,userId);
+            articleCommentService.treadComment(commentId,userId);
         } catch (Exception e) {
             e.printStackTrace();
             result.setStatusCode("500");
@@ -75,6 +74,37 @@ public class CommentController {
             return result;
         }
         result.setStatusCode("200");
+        return result;
+    }
+
+    /**
+     * 获取评论列表
+     * @param userId
+     * @param typeId
+     * @param contentId
+     * @return
+     */
+    @RequestMapping("/commentlist")
+    public @ResponseBody Result getCommentList(@RequestParam("userid") Integer userId,
+                                               @RequestParam("typeid") Integer typeId,
+                                               @RequestParam("contentid") Integer contentId){
+        Result result = new Result();
+
+        try {
+            switch (typeId){
+                case 0:{
+                }
+                case 1:{
+
+                }
+                case 2:{
+
+                }
+            }
+        }catch (Exception e){
+
+        }
+
         return result;
     }
 }

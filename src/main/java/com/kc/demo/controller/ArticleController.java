@@ -151,7 +151,7 @@ public class ArticleController {
             List<Object> listArticle =(List<Object>) dataArticle.get("list");
             List<Object> listComquestion =(List<Object>)dataComQuestion.get("list");
             Long totalArticle = (Long)dataArticle.get("total");
-            Long totalComquestion = (Long)dataArticle.get("total");
+            Long totalComquestion = (Long)dataComQuestion.get("total");
             listComquestion.addAll(listArticle);
             data.put("total",totalArticle+totalComquestion);
             data.put("list",listComquestion);

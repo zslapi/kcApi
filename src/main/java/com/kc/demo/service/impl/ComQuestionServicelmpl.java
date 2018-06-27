@@ -6,6 +6,7 @@ import com.kc.demo.config.MyConfig;
 import com.kc.demo.dao.*;
 import com.kc.demo.jobs.SaveImagesTask;
 import com.kc.demo.model.*;
+import com.kc.demo.model.Dictionary;
 import com.kc.demo.service.ComQuestionService;
 import com.kc.demo.util.Constants;
 import com.kc.demo.util.StringUtil;
@@ -18,11 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.FileNotFoundException;
-import java.security.Key;
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 @Service
@@ -43,8 +41,11 @@ public class ComQuestionServicelmpl implements ComQuestionService {
     @Resource
     private UserInfoMapper userInfoMapper;
 
-    @Resource ComAnswerMapper comAnswerMapper;
+    @Resource
+    private ComAnswerMapper comAnswerMapper;
 
+    @Resource
+    private DictionaryMapper dictionaryMapper;
     /**
      * 发布问题
      * @param record
@@ -80,6 +81,7 @@ public class ComQuestionServicelmpl implements ComQuestionService {
         List<ComQuestion> comQuestionList = comQuestionMapper.selectListByQuestionTypeId(questionTypeId);
         for (ComQuestion comQuestion : comQuestionList){
             comQuestion.setTypeid(1);
+            getQuestionImagesDetailView(comQuestion);
         }
         addTimeAgoInList(comQuestionList);
         PageInfo<ComQuestion> pageInfo = new PageInfo<>(comQuestionList);
@@ -101,6 +103,10 @@ public class ComQuestionServicelmpl implements ComQuestionService {
         comQuestion.setTitle(titleKey);
         PageHelper.startPage(pageNum, pageSize);
         List<ComQuestion> comQuestionList = comQuestionMapper.selectByFilter(comQuestion);
+        for (ComQuestion comQuestionTemp : comQuestionList){
+            comQuestion.setTypeid(1);
+            getQuestionImagesDetailView(comQuestionTemp);
+        }
         addTimeAgoInList(comQuestionList);
         PageInfo<ComQuestion> pageInfo = new PageInfo<>(comQuestionList);
         resultMap.put("total",pageInfo.getTotal());
@@ -352,6 +358,8 @@ public class ComQuestionServicelmpl implements ComQuestionService {
 
     public ViewDetailVo getComQuestionDetail(Integer userId, Integer questionId,Integer pageNum,Integer pageSize){
         ComQuestion comQuestion = comQuestionMapper.selectByPrimaryKey(questionId);
+        if(comQuestion == null)
+            return null;
         ViewDetailVo detailVo = new ViewDetailVo();
         detailVo.setTitle(comQuestion.getTitle());
         detailVo.setContent(comQuestion.getContent());
@@ -378,7 +386,7 @@ public class ComQuestionServicelmpl implements ComQuestionService {
         List<String> imageUrlList = new ArrayList<>();
         for (int i=0;i<imagesList.size();i++) {
             CommunityImages image = imagesList.get(i);
-            imageUrlList.add(Constants.serverUrl()+myConfig.getImagesComQuestionPath()+image.getFilename());
+            imageUrlList.add(Constants.serverUrl()+ "comquestion/images/" +image.getFilename());
         }
         detailVo.setImageUrl(imageUrlList);
 
@@ -406,29 +414,29 @@ public class ComQuestionServicelmpl implements ComQuestionService {
         String[] topicArr= topicStr.split(",");
         for(String str : topicArr)
         {
-            ComQuestion topic = comQuestionMapper.selectByPrimaryKey(Integer.parseInt(str));
-            if(topic != null){
+//            ComQuestion topic = comQuestionMapper.selectByPrimaryKey(Integer.parseInt(str));
+            Dictionary dictionary = dictionaryMapper.selectByPrimaryKey(Integer.parseInt(str));
+            if(dictionary != null){
                 if(name == ""){
-                    name = topic.getTitle();
+                    name = dictionary.getName();
                 }else {
-                    name = name + "," + topic.getTitle();
+                    name = name + "," + dictionary.getName();
                 }
             }
         }
         return name;
     }
 
-//    private String getTopicNameById (Integer id) {
-//        if("".equals(String.valueOf(id)) || "null".equals(String.valueOf(id))) {
-//            return "";
-//        }
-//        String name = null;
-//        ComQuestion topic = comQuestionMapper.selectByPrimaryKey(id);
-//        if(topic!=null){
-//            name = topic.getTitle();
-//        }
-//        return name;
-//    }
+    private void getQuestionImagesDetailView(ComQuestion comQuestion){
+        List<CommunityImages> imagesList = communityImagesMapper.selectCommunityImageListByQueId(comQuestion.getId());
+        List<String> imageUrlList = new ArrayList<>();
+        String imageUrl = null;
+        if (imagesList!=null && imagesList.size()>0) {
+            CommunityImages image = imagesList.get(0);
+            imageUrl = Constants.serverUrl()+ "comquestion/images/" +image.getFilename();
+        }
+        comQuestion.setImageurl(imageUrl);
+    }
 
     private ViewDetailVo getAnswertDetail(Integer userId, Integer comAnswerId){
         ComAnswer comAnswer = comAnswerMapper.selectByComAnswerId(comAnswerId);
@@ -462,7 +470,7 @@ public class ComQuestionServicelmpl implements ComQuestionService {
         List<String> imageUrlList = new ArrayList<>();
         for (int i=0;i<imagesList.size();i++) {
             CommunityImages image = imagesList.get(i);
-            imageUrlList.add(Constants.serverUrl()+myConfig.getImagesComQuestionPath()+image.getFilename());
+            imageUrlList.add(Constants.serverUrl()+ "comanswer/images/" +image.getFilename());
         }
         detailVo.setImageUrl(imageUrlList);
         return detailVo;

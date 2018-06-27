@@ -1,10 +1,15 @@
 package com.kc.demo.controller;
 
+import com.kc.demo.config.MyConfig;
 import com.kc.demo.dao.ComAnswerMapper;
+import com.kc.demo.jobs.PreviewImageTask;
 import com.kc.demo.model.ComAnswer;
 import com.kc.demo.service.ComAnswerService;
 import com.kc.demo.util.StringUtil;
+import com.kc.demo.util.ThreadPoolUtil;
 import com.kc.demo.vo.Result;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 @Controller
 @RequestMapping("/comanswer")
@@ -19,6 +26,9 @@ public class ComAnswerController {
 
     @Resource
     private ComAnswerService comAnswerService;
+
+    @Resource
+    private MyConfig myConfig;
 
     /**
      * 写答案
@@ -169,6 +179,26 @@ public class ComAnswerController {
         }
         result.setStatusCode("200");
         return result;
+    }
+
+    /**
+     * 预览答案图片
+     * @param fileName
+     * @return
+     */
+    @RequestMapping(value="/images/{fileName}",produces = MediaType.IMAGE_PNG_VALUE)
+    @ResponseBody
+    public ResponseEntity<?> getFile(@PathVariable String fileName) {
+        Callable<Object> task = new PreviewImageTask(fileName,myConfig.getImagesComAnswerPath());
+        Future<Object> taskResult = ThreadPoolUtil.submit(task);
+        ResponseEntity<?> responseEntity = null;
+        try {
+            responseEntity = (ResponseEntity<?>) taskResult.get();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.notFound().build();
+        }
+        return  responseEntity;
     }
 
 

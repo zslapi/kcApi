@@ -15,6 +15,8 @@ public interface DictionaryMapper {
 
     List<Dictionary> selectAllDictionnary();
 
+    List<Dictionary> selectByLikeName(Dictionary dictionary);
+
     int updateByPrimaryKeySelective(Dictionary record);
 
     int updateByPrimaryKey(Dictionary record);

@@ -1,19 +1,23 @@
 package com.kc.demo.service.impl;
 
+import com.github.pagehelper.PageInfo;
 import com.kc.demo.dao.CommentMapper;
+import com.kc.demo.model.Article;
+import com.kc.demo.model.ComAnswer;
 import com.kc.demo.model.Comment;
-import com.kc.demo.service.CommentService;
+import com.kc.demo.service.ArticleCommentService;
 import com.kc.demo.util.StringUtil;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
-public class CommentServiceImpl implements CommentService {
+public class ArticleCommentServiceImpl implements ArticleCommentService {
     @Resource
     private CommentMapper commentMapper;
 
@@ -69,4 +73,22 @@ public class CommentServiceImpl implements CommentService {
         comment.setTreaduserids(treadUserIds);
         return commentMapper.updateByPrimaryKeySelective(comment);
     }
+
+    @Override
+    @Transactional(rollbackFor = {RuntimeException.class, Exception.class})
+    public Map<String,Object> getCommentListByParentId(Integer userId, Integer parentId){
+        Map<String,Object> resultMap = new HashMap<>();
+        Comment comment = new Comment();
+        comment.setUserid(userId);
+        comment.setParentid(parentId);
+        List<Comment> commentList = commentMapper.selectCommentListByparentId(comment);
+//        for (Comment commentTemp : commentList){
+//            commentTemp.setTypeid(0);
+//        }
+        PageInfo<Comment> pageInfo = new PageInfo<>(commentList);
+        resultMap.put("total",pageInfo.getTotal());
+        resultMap.put("list",pageInfo.getList());
+        return resultMap;
+    }
+
 }

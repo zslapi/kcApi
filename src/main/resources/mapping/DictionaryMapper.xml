@@ -17,6 +17,16 @@
     from tb_dictionary
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="selectByLikeName" resultMap="BaseResultMap" parameterType="com.kc.demo.model.Dictionary" >
+    select
+    id, name, nameEn, val, parentId
+    from tb_dictionary
+    where
+    <if test="name != null and name != ''">
+      name LIKE CONCAT(CONCAT('%',#{name},'%'))
+    </if>
+
+  </select>
   <select id="selectAllDictionnary" resultMap="BaseResultMap" >
     select
     <include refid="Base_Column_List" />

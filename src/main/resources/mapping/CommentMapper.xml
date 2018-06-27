@@ -16,6 +16,12 @@
     <result column="treadCount" property="treadcount" jdbcType="DECIMAL" />
     <result column="parentId" property="parentid" jdbcType="INTEGER" />
   </resultMap>
+  <resultMap id="ResultMapForFollowComment" type="com.kc.demo.model.Comment" >
+    <result column="id" property="id" jdbcType="INTEGER" />
+    <result column="nickName" property="usernickname" jdbcType="VARCHAR" />
+    <result column="headImageUrl" property="userheadimageurl" jdbcType="VARCHAR"/>
+    <result column="nickName" property="parentnickname" jdbcType="VARCHAR" />
+  </resultMap>
   <sql id="Base_Column_List" >
     id, articleId, userId, content, createTime, status, ip, location, praiseUserIds, 
     praiseCount, treadUserIds, treadCount, parentId
@@ -37,6 +43,25 @@
     id,treadUserIds,treadCount
     from tb_comment
     where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectCommentListByparentId" resultMap="ResultMapForFollowComment" parameterType="com.kc.demo.model.Comment">
+    select
+    a.id id,
+    a.articleId articleid,
+    a.userId userid,
+    a.content content,
+    a.createTime createtime,
+    a.praiseUserIds praiseuserids,
+    a.praiseCount praisecount,
+    a.treadUserIds treaduserids,
+    a.treadCount treadcount,
+    a.parentId parentid,
+    b.nickName usernickname,
+    b.headImageUrl userheadimageurl,
+    c.nickName parentnickname
+    from tb_comment a left join tb_user_info b on a.userId = b.id
+    left join tb_user_info c on a.parentId = c.id
+    where a.id = #{id,jdbcType=INTEGER} and a.parentId = #{parentid,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from tb_comment

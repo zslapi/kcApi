@@ -10,6 +10,10 @@ public class Comment {
 
     private Integer userid;
 
+    private String usernickname;
+
+    private String userheadimageurl;
+
     private String content;
 
     private Date createtime;
@@ -29,6 +33,10 @@ public class Comment {
     private BigDecimal treadcount;
 
     private Integer parentid;
+
+    private String parentnickname;
+
+    private Integer typeid;
 
     public Integer getId() {
         return id;
@@ -132,5 +140,37 @@ public class Comment {
 
     public void setParentid(Integer parentid) {
         this.parentid = parentid;
+    }
+
+    public String getUserheadimageurl() {
+        return userheadimageurl;
+    }
+
+    public String getParentnickname() {
+        return parentnickname;
+    }
+
+    public String getUsernickname() {
+        return usernickname;
+    }
+
+    public void setParentnickname(String parentnickname) {
+        this.parentnickname = parentnickname;
+    }
+
+    public void setUserheadimageurl(String userheadimageurl) {
+        this.userheadimageurl = userheadimageurl;
+    }
+
+    public void setUsernickname(String usernickname) {
+        this.usernickname = usernickname;
+    }
+
+    public void setTypeid(Integer typeid) {
+        this.typeid = typeid;
+    }
+
+    public Integer getTypeid() {
+        return typeid;
     }
 }

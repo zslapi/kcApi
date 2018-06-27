@@ -2,6 +2,8 @@ package com.kc.demo.dao;
 
 import com.kc.demo.model.Comment;
 
+import java.util.List;
+
 public interface CommentMapper {
     int deleteByPrimaryKey(Integer id);
 
@@ -18,4 +20,6 @@ public interface CommentMapper {
     Comment selectPraiseCount(Integer comAnswerId);
 
     Comment selectTreadCount(Integer comAnswerId);
+
+    List<Comment> selectCommentListByparentId(Comment comment);
 }

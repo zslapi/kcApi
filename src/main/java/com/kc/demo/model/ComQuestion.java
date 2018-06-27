@@ -3,6 +3,7 @@ package com.kc.demo.model;
 import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 
 import java.util.Date;
+import java.util.List;
 
 public class ComQuestion {
     private Integer id;
@@ -40,6 +41,8 @@ public class ComQuestion {
     private String topicid;
 
     private String timeAgo;
+
+    private String imageurl;
 
     public Integer getId() { return id; }
 
@@ -160,4 +163,12 @@ public class ComQuestion {
     public String getHeadimageurl(){return headimageurl;}
 
     public void setHeadimageurl(String headimageurl){this.headimageurl = headimageurl;}
+
+    public void setImageurl(String imageurl) {
+        this.imageurl = imageurl;
+    }
+
+    public String getImageurl() {
+        return imageurl;
+    }
 }

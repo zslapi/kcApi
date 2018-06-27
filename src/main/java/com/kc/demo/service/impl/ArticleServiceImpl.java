@@ -6,6 +6,7 @@ import com.kc.demo.config.MyConfig;
 import com.kc.demo.dao.*;
 import com.kc.demo.jobs.SaveImagesTask;
 import com.kc.demo.model.*;
+import com.kc.demo.model.Dictionary;
 import com.kc.demo.service.ArticleService;
 import com.kc.demo.util.Constants;
 import com.kc.demo.util.StringUtil;
@@ -44,6 +45,9 @@ public class ArticleServiceImpl implements ArticleService {
     private UserInfoMapper userInfoMapper;
 
     @Resource
+    private DictionaryMapper dictionaryMapper;
+
+    @Resource
     private MyConfig myConfig;
 
     @Override
@@ -66,6 +70,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<Article> articleList = articleMapper.selectListByArticleTypeId(articleTypeId);
         for (Article article : articleList){
             article.setTypeid(0);
+            getArticleImagesUrl(article);
         }
         addRemainFieldInList(articleList);
         PageInfo<Article> pageInfo = new PageInfo<>(articleList);
@@ -87,6 +92,7 @@ public class ArticleServiceImpl implements ArticleService {
             List<Article> articles = articleMapper.selectByUserIds(userIds);
             for (Article article : articles){
                 article.setTypeid(0);
+                getArticleImagesUrl(article);
             }
             addRemainFieldInList(articles);
             PageInfo<Article> pageInfo = new PageInfo<>(articles);
@@ -116,12 +122,23 @@ public class ArticleServiceImpl implements ArticleService {
         List<Article> articleList = articleMapper.selectByFilter(article);
         for (Article articleTemp : articleList){
             articleTemp.setTypeid(0);
+            getArticleImagesUrl(articleTemp);
         }
         addRemainFieldInList(articleList);
         PageInfo<Article> pageInfo = new PageInfo<>(articleList);
         resultMap.put("total",pageInfo.getTotal());
         resultMap.put("list",pageInfo.getList());
         return resultMap;
+    }
+
+    private void getArticleImagesUrl(Article articleTemp){
+        List<ArticleImages> imagesList = articleImagesMapper.selectArticleImageList(articleTemp.getId());
+        String imageUrl = null;
+        if(imagesList !=null  && imagesList.size()>0){
+            ArticleImages image = imagesList.get(0);
+            imageUrl = Constants.serverUrl()+ "article/images/" +image.getFilename();
+        }
+        articleTemp.setImageurl(imageUrl);
     }
 
     @Override
@@ -134,6 +151,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<Article> articleList = articleMapper.selectByFilter(article);
         for (Article articleTemp : articleList){
             articleTemp.setTypeid(0);
+            getArticleImagesUrl(articleTemp);
         }
         addRemainFieldInList(articleList);
         PageInfo<Article> pageInfo = new PageInfo<>(articleList);
@@ -350,6 +368,8 @@ public class ArticleServiceImpl implements ArticleService {
     public ViewDetailVo getArticleDetail(Integer userId,Integer articleId) {
         logger.info("测试一下：文章详情");
         Article article = articleMapper.selectByPrimaryKey(articleId);
+        if(article == null)
+            return null;
         ViewDetailVo detailVo = new ViewDetailVo();
         detailVo.setTitle(article.getTitle());
         detailVo.setContent(article.getContent());
@@ -374,14 +394,14 @@ public class ArticleServiceImpl implements ArticleService {
         List<String> imageUrlList = new ArrayList<>();
         for (int i=0;i<imagesList.size();i++) {
             ArticleImages image = imagesList.get(i);
-            imageUrlList.add(Constants.serverUrl()+myConfig.getImagesArticlePath()+image.getFilename());
+            imageUrlList.add(Constants.serverUrl()+"article/images/"+image.getFilename());
         }
         detailVo.setImageUrl(imageUrlList);
         return detailVo;
     }
 
 
-    private String getTopicNameById (String  topicStr) {
+    private String getTopicNameById (String topicStr) {
         if("".equals(String.valueOf(topicStr)) || "null".equals(String.valueOf(topicStr))) {
             return "";
         }
@@ -389,12 +409,13 @@ public class ArticleServiceImpl implements ArticleService {
         String[] topicArr= topicStr.split(",");
         for(String str : topicArr)
         {
-            Article topic = articleMapper.selectByPrimaryKey(Integer.parseInt(str));
-            if(topic != null){
+//            Article topic = articleMapper.selectByPrimaryKey(Integer.parseInt(str));
+            Dictionary dictionary = dictionaryMapper.selectByPrimaryKey(Integer.parseInt(str));
+            if(dictionary != null){
                 if(name == ""){
-                    name = topic.getTitle();
+                    name = dictionary.getName();
                 }else {
-                    name = name + "," + topic.getTitle();
+                    name = name + "," + dictionary.getName();
                 }
             }
         }

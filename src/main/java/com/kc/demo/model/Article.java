@@ -1,6 +1,7 @@
 package com.kc.demo.model;
 
-import java.sql.Timestamp;
+import java.awt.*;
+import java.util.List;
 import java.util.Date;
 
 public class Article {
@@ -39,6 +40,8 @@ public class Article {
     private String timeAgo;
 
     private String topicid;
+
+    private String imageurl;
 
     public Integer getId() {
         return id;
@@ -160,5 +163,13 @@ public class Article {
 
     public void setTypeid(Integer typeid) {
         this.typeid = typeid;
+    }
+
+    public String getImageurl() {
+        return imageurl;
+    }
+
+    public void setImageurl(String imageurl) {
+        this.imageurl = imageurl;
     }
 }

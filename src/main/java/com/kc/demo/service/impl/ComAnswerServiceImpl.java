@@ -340,11 +340,12 @@ public class ComAnswerServiceImpl implements ComAnswerService {
         List<String> imageUrlList = new ArrayList<>();
         for (int i=0;i<imagesList.size();i++) {
             CommunityImages image = imagesList.get(i);
-            imageUrlList.add(Constants.serverUrl()+myConfig.getImagesComQuestionPath()+image.getFilename());
+            imageUrlList.add(Constants.serverUrl()+ "comanswer/images/" +image.getFilename());
         }
         detailVo.setImageUrl(imageUrlList);
         return detailVo;
     }
+
     private String getTopicNameById (String  topicStr) {
         if("".equals(String.valueOf(topicStr)) || "null".equals(String.valueOf(topicStr))) {
             return "";

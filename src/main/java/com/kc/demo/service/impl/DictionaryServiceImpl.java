@@ -20,4 +20,9 @@ public class DictionaryServiceImpl implements DictionaryService {
     public List<Dictionary> initDictionary(HttpServletRequest request){
          return dictionaryMapper.selectAllDictionnary();
     }
+
+    @Override
+    public List<Dictionary> selectByLikeName(Dictionary dictionary){
+        return dictionaryMapper.selectByLikeName(dictionary);
+    }
 }

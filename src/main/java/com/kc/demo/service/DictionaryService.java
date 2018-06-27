@@ -10,4 +10,5 @@ import java.util.List;
 public interface DictionaryService {
    public List<Dictionary> initDictionary(HttpServletRequest request);
 
+   public List<Dictionary> selectByLikeName(Dictionary dictionary);
 }

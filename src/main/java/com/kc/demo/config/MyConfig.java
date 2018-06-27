@@ -7,13 +7,13 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "myconfig")
 @Component
 public class MyConfig {
-    @Value("/upload/images/Article")
+    @Value("upload/images/Article/")
     private String imagesArticlePath;
 
-    @Value("/upload/images/comQuestion")
+    @Value("upload/images/comQuestion/")
     private String imagesComQuestionPath;
 
-    @Value("/upload/images/comAnswer")
+    @Value("upload/images/comAnswer/")
     private String imagesComAnswerPath;
 
     @Value("${myconfig.maximumPoolSize}")
